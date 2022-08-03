@@ -16,20 +16,27 @@
 \usepackage{multirow}
 \usepackage{clrscode3e}
 \usepackage{environ}
+\usepackage[skip=10pt,indent=20pt]{parskip}
 
 \geometry{
-    a4paper,
-    total={170mm,257mm},
-    left=25mm,
-    top=25mm,
+    a4paper,%
+    total={170mm,257mm},%
+    left=25mm,%
+    top=25mm
 }
 
 \graphicspath{{img/}}
 
 \hypersetup{
-    colorlinks=true,
-    linkcolor=blue!80!red,
+    colorlinks=true,%
+    linkcolor=blue!80!red,%
     urlcolor=green!70!black
+}
+
+\captionsetup[figure]{%
+    font=small,%
+    justification=centering,%
+    width=0.6\textwidth
 }
 
 % Comandos caseros
@@ -38,6 +45,9 @@
 \newcommand{\BigTheta}[1]{{\Theta(#1)}}
 
 \newcommand{\code}{\texttt}
+
+\newcommand{\si}{\text{si }}
+\newcommand{\ecc}{\text{en caso contrario}}
 
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
@@ -76,7 +86,7 @@
 
 \tableofcontents
 
-\chapter{Técnicas de diseño de algoritmos}
+\chapter{Técnicas de Diseño de Algoritmos}
 
 \section{Complejidad}
 
@@ -300,8 +310,8 @@ Una forma alternativa de realizar la operación sería haciendo uso del siguient
     $$
         \binom{n}{k} =
         \begin{cases}
-            1                                       & \text{si } k = 0 \lor k = n \\
-            \binom{n - 1}{k - 1} + \binom{n - 1}{k} & \text{si } 0 < k < n
+            1                                       & \si k = 0 \lor k = n \\
+            \binom{n - 1}{k - 1} + \binom{n - 1}{k} & \si 0 < k < n
         \end{cases}
     $$
 \end{theorem*}
@@ -366,8 +376,8 @@ Para resolver este problema utilizando PD, se puede definir la función $m(k, D)
 $$
     m(k, D) =
     \begin{cases}
-        0                                              & \text{si } k = 0 \lor D \leq 0 \\
-        \max{\{m(k - 1, D), b_k + m(k - 1, D - p_k)\}} & \text{en caso contrario}
+        0                                              & \si k = 0 \lor D \leq 0 \\
+        \max{\{m(k - 1, D), b_k + m(k - 1, D - p_k)\}} & \ecc
     \end{cases}
 $$
 
@@ -501,5 +511,269 @@ Los \textit{algoritmos de Las Vegas} siempre devuelven una respuesta cuando term
 \subsection{Algoritmos de Sherwood}
 
 Los \textit{algoritmos de Sherwood} son algoritmos que aleatorizan procesos determinísticos, habitualmente aquellos que tienen una gran diferencia entre el peor caso y el promedio. El ejemplo clásico es el algoritmo de quicksort con pivote seleccionado aleatoriamente.
+
+\chapter{Introducción a Teoría de Grafos}
+
+\section{Grafos}
+
+\subsection{Definición}
+
+Un \textit{grafo} es un par ordenado $G = (V, E)$: el conjunto $V$, de \textit{vértices} o \textit{nodos} , y el de aristas/arcos $E$, que relacionan a esos nodos.
+
+En el caso de los grafos \textit{no dirigidos} (o simplemente grafos), $E \subseteq \{\{v_1, v_2\}\ |\ v_1,v_2 \in V, v_1 \neq v_2 \}$ es un conjunto de pares no ordenados de los elementos de $V$, conocidos como \textit{aristas}. Por otro lado, para los \textit{grafos dirigidos} (también llamados \textit{digrafos}), $E \subseteq V \times V$ tiene pares ordenados de nodos, y sus elementos se denominan arcos. Se suele realizar un abuso de notación menor, utilizando $(v, w)$ para referirse tanto a aristas como arcos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{ejemplo_grafo.png}
+    \small
+    \caption*{Representaciones gráficas de un grafo (a) y un digrafo (b). Los círculos son los vértices, y las líneas/flechas son las aristas/arcos.}
+\end{figure}
+
+En general, se denota $n_G = |V|$ y $m_G = |E|$ para referirse a las cantidades de vértices y aristas. Cuando el grafo referido es inambigüo, se omite el subíndice\footnote{Lo mismo vale para el resto de las definiciones en esta sección.}.
+
+\subsection{Vecinos}
+
+Dados $v,w \in V$, se denominan \textit{adyacentes} cuando $e = (v,w) \in E$, y que $e$ es \textit{incidente} a $v$ y $w$. Similarmente, la \textit{vecindad} de $v$, denotada por $N_G(v)$ es el conjunto de vértices adyacentes a $v$, es decir:
+$$N_G(v) = \{w \in V \mid (v, w) \in E\}$$
+
+Por otro lado, la cantidad de aristas incidentes a un vértice $v$ se llama \textit{grado}, definida como:
+$$d_G(v) = |N_G(v)|$$
+
+\begin{theorem*}
+    Dado un grafo de $G = (V, E)$, la suma de los grados de sus vértices es el doble de la cantidad de aristas. Es decir,
+    $$\sum_{v \in V} d(v) = 2m$$
+\end{theorem*}
+\begin{proof}
+    Se puede demostrar por inducción en $m$, la cantidad de aristas.
+
+    \textbf{Caso base:} Se puede tomar como caso base $m = 0$. En un grafo sin aristas, todos los vértices tienen grado $0$, y por ende:
+    $$\sum_{v \in V} d(v) = 0 = 2m$$
+
+    \textbf{Paso inductivo:} Asumiendo que la propiedad se cumple para $m = k$, tomemos un grafo cualquiera $G = (V, E)$ con $|E| = k + 1$ aristas. Se puede elegir una arista cualquiera $e = (v, w) \in E$, y construir el grafo $G' = (V, E - {e})$ que resulta de quitar una de sus aristas. Como $m_{G'} = k$, se cumple la hipótesis inductiva:
+    $$\sum_{u \in V} d_{G'}(u) = 2m_{G'} = 2k$$
+
+    Luego, para el grafo original $G$, la adición de la arista $e$ solo incrementea el grado de los vértices $v$ y $w$. Concretamente:
+    $$
+        d_G(u) =
+        \begin{cases}
+            d_{G'}(u) + 1 & \si u = v \lor u = w \\
+            d_{G'}(u)     & \ecc
+        \end{cases}
+    $$
+    Por lo tanto, se tiene:
+    \begin{align*}
+        \sum_{u \in V} d_G(u) & = \sum_{v \in V - \{v, w\}} d_{G'}(u) + (d_{G'}(v) + 1) + (d_{G'}(w) + 1) \\
+                              & = \sum_{u \in V} d_{G'}(u) + 2 \stackrel{HI}{=} 2k + 2 = 2(k + 1) = 2m_G
+    \end{align*}
+
+    Lo cual, por inducción, implica que la propiedad vale para todo $m \in \N$.
+
+\end{proof}
+
+\subsubsection{Complemento}
+
+Dado un grafo $G = (V, E)$, su \textit{grafo complemento}, denotado como $\bar{G} = (V, \bar{E})$, tiene el mismo conjunto de vértices, pero cada par de vértices es adyacente en $\bar{G}$ si y solo si no lo es en $G$. Es decir,
+$$\bar{E} = (V \times V) - E$$
+
+\subsubsection{Grafos Completos}
+
+El grafo $K_n$ es el \textit{grafo completo} de $n$ vértices, los cuales son todos adyacentes entre sí. Este grafo tiene $m_{K_n} = \frac{n(n-1)}{2}$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{K7.png}
+    \caption*{Representación gráfica del grafo completo $K_7$.}
+\end{figure}
+
+\subsection{Generalizaciones}
+
+Algunas generalizaciones de grafos\footnote{No se estudian mucho en la materia.} son:
+\begin{itemize}
+    \item \textbf{Multigrafos}: En un multigrafo, $E$ pasa a ser un multiconjunto, es decir, pueden haber varias aristas entre un mismo par de vértices.
+    \item \textbf{Pseudografo}: Los pseudografos pueden tiene varias aristas entre un mismo par de vértices, y también puede haber aristas que unan a un mismo par de vértices (llamadas \textit{loops}).
+\end{itemize}
+
+\subsection{Recorridos}
+
+\begin{itemize}
+    \item Un \textit{recorrido} en un grafo es una secuencia de vértices $P = v_0 v_1 \cdots v_k$ tal que todos los pares consecutivos son adyacentes, es decir, $(v_i, v_{i+1}) \in E\ \forall i = 0, ..., k - 1$. Para multi- y pseudo-grafos, se debe especificar entre qué aristas se pasa.
+    \item Un \textit{camino} es un recorrido que no pasa por el mismo vértice $2$ veces.
+    \item Una \textit{sección} de un recorrido $P$ es una subsecuencia $S = v_i v_{i+1} \cdots v_j$ de vértices consecutivos de $P$, y se denota $P_{v_i v_j}$.
+    \item Un \textit{circuito} es un recorrido que empieza y termina en el mismo vértice.
+    \item Un \textit{ciclo} o \textit{circuito simple} es un circuito de $3$ o más vértices que no pasa $2$ veces por el mismo vértice (salvo por el principio y fin).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{ejemplo_camino.png}
+    \caption*{Un ejemplo de un camino entre los vértices $a$ y $h$.}
+\end{figure}
+
+\subsection{Distancia}
+
+Dado un recorrido $P$, su \textit{longitud}, $l(P)$, es la cantidad de aristas que tiene. Luego, la \textit{distancia} entre $v$ y $w$ se define como la longitud del camino más corto entre $v$ y $w$, y se llama $d(v, w)$. Si no hay recorrido entre $v$ y $w$, se define que $d(v, w) = \infty$, mientras que $d(v, v) = 0$ para cualquier $v$.
+
+\begin{theorem*}
+    Si un recorrido $P$ entre $v$ y $w$ cumple $l(P) = d(v, w)$, entonces es un camino.
+\end{theorem*}
+\begin{proof}
+    Se puede demostrar por el absurdo: si $P$ no fuera un camino, tendría algún vértice $u$ por el que se pasa $2$ veces: $P = v \cdots u \cdots u \cdots w$. Si se forma un nuevo recorrido $P' = P_{vu} + P_{uw}$ (excluyendo el recorrido de $u$ a sí mismo), este tendría una longitud estrictamente menor que $P$, y por ende $l(P') < d(v, w)$ (\textbf{Absurdo}).
+
+\end{proof}
+
+\begin{theorem*}
+    Para cualquier grafo $G = (V, E)$, la función de distancia $d: V \times V \longrightarrow \N$ es una métrica, es decir, cumple las siguientes propiedades para todo $u, v, w \in V$:
+    \begin{itemize}
+        \item $d(u, v) = 0 \iff u = v$
+        \item $d(u, v) = d(v, u)$
+        \item $d(u, w) \leq d(u, v) + d(v, w)$ (desigualdad triangular)
+    \end{itemize}
+\end{theorem*}
+\begin{proof}
+    Se demuestra por separado:
+    \begin{itemize}
+        \item La ida vale por definición, y la vuelta vale porque cualquier camino entre un par de vértices tiene al menos $1$ arista (y por ende $d(u, v) \geq 1$).
+        \item En un grafo las aristas no tienen sentido, así que cualquier camino puede ser invertido para formar un camino válido. Por ende, la longitud del camino más corto entre $u$ y $v$ debe ser la misma que entre $v$ y $u$.
+        \item Si $P_{uv}$ y $P_{vw}$ son caminos tales que $l(P_{uv}) = d(u,v)$ y $l(P_{vw}) = d(v,w)$, se pueden concatenar para formar un recorrido $P_{uv} + P_{vw}$ entre $u$ y $w$. Como la distancia es la longitud mínima entre todos los recorridos, se tiene $d(u, w) \leq l(P_{uv} + P_{vw}) = d(u, v) + d(v, w)$.
+    \end{itemize}
+
+\end{proof}
+
+\subsection{Subgrafos}
+
+Dado un grafo $G = (V_G, E_G)$,
+
+\begin{itemize}
+    \item Un \textit{subgrafo} de $G$ es un grafo $H = (V_H, E_H)$ tal que $V_H \subseteq V_G$ y $E_H \subseteq E_G \cap (V_H \times V_H)$. Los notamos como $H \subseteq G$.
+    \item $H$ es un \textit{subgrafo propio} cuando $H \subseteq G$ y $H \neq G$.
+    \item $H$ es un \textit{subgrafo generador} cuando $H \subseteq G$ y $V_H = V_G$.
+    \item $H$ es un \textit{subgrafo inducido} cuando $(v, w) \in E_H \iff v,w \in V_H \land (v, w) \in E_H$. Estos subgrafos pueden definirse únicamente por su conjunto de vértices, y se denota como $G_{[V_H]}$.
+\end{itemize}
+
+\subsection{Conectividad}
+
+Un grafo se denomina \textit{conexo} cuando existe un camino entre todo par de vértices. Una \textit{componente conexa} de un grafo es un subgrafo inducido conexo maximal (no se pueden agregar más vértices y mantenerlo conexo) de $G$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{ejemplo_conexo.png}
+    \caption*{Un grafo conexo (a) y uno disconexo (b).}
+\end{figure}
+
+\subsection{Representación de Grafos}
+
+Existen distintas alternativas para representar grafos en un algoritmo, que proveen ventajas y desventajas a la hora de realizar diversas operaciones.
+
+\subsubsection{Lista de aristas}
+
+El grafo se almacena como una lista de pares de vértices, que representan sus aristas. Esta es la forma más simple de representarlo, y es el formato que se asume que tiene la entrada de cualquier algoritmo de grafos. Debido a su falta de estructura, realizar la mayoría de las operaciones resulta costoso, con la excepción de agregar nodos o aristas.
+
+Esta estructura tiene ciertas variaciones. Por ejemplo, se pueden ordenar los vértices dentro de cada lista, lo cual permite usar búsqueda binaria para comprobar la pertenencia de un vértice a ellas, pero aumenta la complejidad de construir la estructura y la de agregar vértices (porque hay que mantener el orden).
+
+\subsubsection{Listas de adyacencia}
+
+Se mantienen $n$ listas, donde cada lista $L_i$ contiene todos los vértices de $N(v_i)$. Esto permite realizar algunas operaciones más rápidamente, y la estructura se puede construir a partir de la lista de aristas en tiempo lineal.
+
+\subsubsection{Matriz de adyacencia}
+
+En este caso, se tiene una matriz $M \in \{0, 1\}^{n \times n}$, donde cada posición está determinada por:
+$$
+    M_ij =
+    \begin{cases}
+        1 & \si (i, j) \in E \\
+        0 & \ecc
+    \end{cases}
+$$
+
+La matriz es simétrica para grafos, pero no necesariamente para digrafos.
+
+La estructura permite comprobar si dos vértices son adyacentes en tiempo constante. Sin embargo, construirla a partir de una lista de adyacencia es una operación de complejidad cuadrática, y la estructura es muy rígida (para agregar un vértice se debe armar una nueva matriz). Además, la complejidad espacial es también $\BigO{|V|^2}$, lo cual es problemático para guardar grafos ralos\footnote{Un grafo \textit{ralo} es uno con ``pocas'' aristas.}.
+
+\subsubsection{Matriz de incidencia}
+
+Esta estructura es una matriz $I \in \{0, 1\}^{m \times n}$ donde las filas representan los vértices y las columnas las aristas. Una posición $i, j$ tiene uno cuando la arista de la columna $j$ es incidente al vértice de la fila $i$.
+
+\subsubsection{Complejidades}
+
+% TODO: Tabla de complejidades
+
+\subsection{Isomorfismo}
+
+Dos grafos $G = (V, E)$ y $G' = (V', E')$ son \textit{isomorfos} cuando existe una función biyectiva $f: V \longrightarrow V'$ tal que:
+$$\forall v, w \in V,\ (v, w) \in E \iff (f(v), f(w)) \in E'$$
+
+A la función $f$ se la llama isomorfismo, y se denota $G \approxeq G'$ o (por abuso de notación) $G = G'$.
+
+\begin{theorem*}
+    Si dos grafos $G \approxeq G'$ son isomorfos.
+    \begin{itemize}
+        \item Tienen el mismo número de vértices.
+        \item Tiene el mismo número de aristas.
+        \item $\forall 0 \leq k \leq n - 1,$ tienen el mismo número de vértices de grado $k$.
+        \item Tienen el mismo número de componentes conexas.
+        \item $\forall 0 \leq k \leq n - 1,$ tienen el mismo número de caminos simples de longitud $k$.
+    \end{itemize}
+\end{theorem*}
+\begin{proof}
+    % TODO
+
+\end{proof}
+
+\subsection{Definiciones en digrafos}
+
+\subsubsection{Vecinos}
+
+\begin{itemize}
+    \item Para un arco $e = (v, w) = v \rightarrow w$, se llama \textit{cola} de $e$ a $v$ y \textit{cabeza} de $e$ a $w$.
+    \item El \textit{grado de entrada} $d_-(v)$ es la cantidad de arcos que tienen a $v$ como cabeza.
+    \item El \textit{grado de salida} $d_+(v)$ es la cantidad de arcos que tienen a $v$ como cola.
+    \item El \textit{grafo subyacente} de $G$ es el grafo que resulta de ignorar las direcciones de sus arcos.
+\end{itemize}
+
+\subsubsection{Recorridos}
+
+\begin{itemize}
+    \item Un \textit{recorrido/camino orientado} en un digrafo es una sucesión de vértices que están conectados apropiadamente por arcos (sin repetidos en el caso del camino).
+    \item Un \textit{circuito/ciclo orientado} es un recorrido/camino orientado que empieza y termina en el mismo vértice.
+    \item Un digrafo es \textit{fuertemente conexo} si para todo par de vértices $v, u$ existen caminos orientados de $u$ a $v$ y de $v$ a $u$.
+\end{itemize}
+
+\section{Grafos Bipartitos}
+
+Un grafo $G = (V, E)$ es \textit{bipartito} cuando existe una \textit{bipartición} de sus vértices $(V_1, V_2)$ tal que todas las aristas de $G$ tienen un extremo en $V_1$ y el otro en $V_2$. Por otro lado, $G$ es \textit{bipartito completo} cuando todo vértice de $V_1$ es adyacente a todo vértice de $V_2$, y se denota $G = K_{|V_1|,|V_2|}$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{grafo_K_3,5.png}
+    \caption*{El grafo bipartito completo $K_{3,5}$.}
+\end{figure}
+
+\begin{theorem*}
+    Un grafo $G$ es bipartito $\iff$ no tiene ciclos de longitud impar.
+\end{theorem*}
+\begin{proof}
+    Como un grafo es bipartito si y solo si cada una de sus componentes conexas es bipartita, y un grafo no tiene ciclos impares si y solo si ninguna de sus componentes conexas tiene ciclos impares, alcanza con demostrar el teorema para grafos conexos.
+
+    $\implies$) Sea $(V_1, V_2)$ la bipartición de $G$.
+
+    Si $G$ tiene algún ciclo $C = v_1v_2 \cdots v_kv_1$, se puede asumir sin pérdida de generalidad que $v_1 \in V_1$. Luego, como $v_1v_2 \in E$ (y $G$ es bipartito), $v_2 \in V_2$. En general, $v_{2i+1} \in V_1$ y $v_{2i} \in V_2$. Como $v_1 \in V_1$ y $v_kv_1 \in E$, se debe cumplir $v_k \in V_2$. Por ende $k = 2i$ así que $l(C)$ es par.
+
+    $\impliedby$) Sea $u$ cualquier vértice de $V$. Se definen los siguientes conjuntos:
+    \begin{align*}
+        V_1 & = \{v \in V \mid 2 | d(u, v)\} \cup \{u\} \\
+        V_2 & = \{v \in V \mid 2 \not| d(u, v)\}
+    \end{align*}
+
+    $(V_1,V_2)$ definen una partición de $V$. Se puede demostrar que es una bipartición de $G$ por el absurdo.
+
+    Supongamos que no es una bipartición, entonces existen $v, w \in V_1$ (s.p.g.) tales que $vw \in E$. Si $v = u$, entonces $d(v,u) = 1$, que es absurdo porque $d(v, w)$ es par. Lo mismo vale para $w$, así que $v \neq u$ y $v \neq w$.
+
+    Sea $P$ un camino mínimo entre $v$ y $u$ y $Q$ uno entre $v$ y $w$. Como $u, w \in V_1$ $P$ y $Q$ tienen longitud par. Luego, sea $z$ el vértice común a $P$ y $Q$ tal que $P_{zv}$ y $Q_{zw}$ son disjuntos (ignorando $z$).
+    
+    Se debe cumplir $d(u, z) = l(P_{uz}) = l(Q_{uz})$, porque del contrario $P$ y $Q$ no serían caminos mínimos. Esto implica que $l(P_{zv})$ y $l(Q_{zw})$ tienen la misma paridad, porque $l(P)$ y $l(Q)$ son ambos pares y la diferencia entre las longitudes totales y las de los subcaminos es la misma. Por ende, el ciclo $P_{zv}(v, w)Q_{wz}$ tiene longitud impar (\textbf{Absurdo}).
+
+\end{proof}
+
+
 
 \end{document}
