@@ -1,6 +1,6 @@
 # Resumen de Algoritmos y Estructuras de Datos 3
 
-Este es un resumen para el final de la materia Algoritmo y Estructuras de Datos 3 en Ciencias de la Computación, una carrera de la UBA.
+Este es un resumen para el final de la materia Algoritmos y Estructuras de Datos 3 en Ciencias de la Computación, una carrera de la UBA.
 
 ## Fuentes
 
