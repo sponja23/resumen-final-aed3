@@ -1045,9 +1045,9 @@ Habiendo implementado y analizado DFS, el algoritmo para encontrar un ordenamien
 
 Para implementar este algoritmo, no es necesario ordenar directamente los vértices a través de \id{fin} (lo tendría complejidad\BigO{|V|\log{|V|}}), sino que basta con modificar DFS: después de terminar de explorar el subárbol de cada vértice, se lo agrega al principio de una secuencia. Esto produce un ordenamiento topológico de $D$.
 
-\section{Algoritmo de Korasaju}
+\section{Algoritmo de Kosaraju}
 
-El algoritmo de Korasaku es un algoritmo lineal que encuentra las \hyperref[recorridos-digrafos]{componentes fuertemente conexas} de un digrafo $G$. Se basa en hacer $2$ recorridos DFS: el primero se utiliza para obtener un post-order de los vértices del grafo, mientras que el segundo lo recorre de manera inversa para armar los componentes. Este segundo DFS se hace sobre $G^T$, el digrafo cuyas aristas tienen el sentido opuesto al de las de $G$. El algoritmo es el siguiente:
+El algoritmo de Kosaraku es un algoritmo lineal que encuentra las \hyperref[recorridos-digrafos]{componentes fuertemente conexas} de un digrafo $G$. Se basa en hacer $2$ recorridos DFS: el primero se utiliza para obtener un post-order de los vértices del grafo, mientras que el segundo lo recorre de manera inversa para armar los componentes. Este segundo DFS se hace sobre $G^T$, el digrafo cuyas aristas tienen el sentido opuesto al de las de $G$. El algoritmo es el siguiente:
 
 \begin{codebox}
     \Procname{$\proc{Kosaraju}(G)$}
@@ -1109,7 +1109,7 @@ Un \textit{árbol generador mínimo} (AGM) es un \hyperref[arbol-generador]{árb
 
 \begin{problema}
     Dado un grafo $G = (V, E)$ y una función de peso $w: E \longrightarrow \N$, encontrar un AG $T = (V, E_T)$ que cumpla:
-    $$w(T) = \sum_{e \in E_T} w(e) \leq \sum_{e \in E_{T'}} = w(T')$$
+    $$w(T) = \sum_{e \in E_T} w(e) \leq \sum_{e \in E_{T'}} w(e) = w(T')$$
 
     Para cualquier árbol generador $T' = (V, E_{T'})$ en $G$.
 \end{problema}
@@ -1198,7 +1198,7 @@ El algoritmo asume que el grafo es conexo. Si esto no se cumple, se puede modifi
 Para implementar el algoritmo de Prim, es necesario determinar un método para encontrar la arista de menor peso entre $V_T$ y $V - V_T$. Esto se puede lograr utilizando una cola de prioridad, pero la forma en la que esta se represente puede variar:
 \begin{itemize}
     \item \underline{Un arreglo de $|V|$ posiciones}: En este caso, el peso de la arista que conecta a cada vértice con el árbol se guarda en una posición del arreglo (los vértices que ya se agregaron se marcan con un valor especial). Para determinar el siguiente vértice a agregar, se toma el mínimo del arreglo, y una vez que se agrega se actualizan las posiciones correspondientes (en caso de que uno de sus vecinos se pueda alcanzar con peso menor al anterior). Ambas operaciones son \BigO{|V|}, y como se realizan $|V| - 1$ operaciones, la complejidad total \BigO{|V|^2}.
-    \item \underline{Un heap}: En este caso, se mantiene un mín-heap de los nodos que no fueron explorados, donde la clave es el peso mínimo entre las aristas que lo conectan al árbol. En cada paso se desencola un vértice, y se actualizan las claves de sus vecinos\footnote{Para lograr esto en tiempo logarítmico, es preferible usar un árbol balanceado (como los AVLs) antes que un heap.}. Esto implica que se realizan $1 + d(v)$ operaciones logarítmicas, lo cual resulta en una complejidad total de \BigO{(|V| + |E|)\log{|V|}}. Como se asume que $G$ es conexo, $|E| \geq |V| - 1$, y por ende $\BigO{(|V| + |E|)\log{|V|}} \subseteq \BigO{|E|\log{|V|}}$.
+    \item \underline{Un heap}: En este caso, se mantiene un mín-heap de los nodos que no fueron explorados, donde la clave es el peso mínimo entre las aristas que lo conectan al árbol. En cada paso se desencola un vértice, y se actualizan las claves de sus vecinos\footnote{Para lograr esto en tiempo logarítmico, es preferible usar un árbol balanceado (como los AVLs) antes que un heap.}. Esto implica que se realizan $1 + d(v)$ operaciones logarítmicas en cada iteración, lo cual resulta en una complejidad total de \BigO{(|V| + |E|)\log{|V|}}. Como se asume que $G$ es conexo, $|E| \geq |V| - 1$, y por ende $\BigO{(|V| + |E|)\log{|V|}} \subseteq \BigO{|E|\log{|V|}}$.
 \end{itemize}
 
 En el caso de los grafos \textit{densos}, que se podrían definir como aquellos en los que $|E| \in \BigOmega{|V|^2}$, la segunda alternativa tendría complejidad \BigO{|V|^2\log{|V|}}, mientras que la primera solo \BigO{|V|^2}. Por otro lado, si el grafo es \textit{ralo}, que sería cuando $|E| \in \BigO{|V|}$, la segunda sería tan solo \BigO{|V|\log{|V|}}, mejor que \BigO{|V^2|}.
@@ -1220,7 +1220,7 @@ Internamente, la estructura se implementa como un bosque, donde cada árbol se c
 
 Esto alcanza para implementar a la estructura, pero la complejidad no es ideal: los árboles podrían ser degenerados (una línea donde cada nodo tiene $1$ solo hijo), lo cual haría que \proc{Find} sea \BigO{n}. Para evitar que suceda esto, se emplean 2 heurísticas:
 \begin{itemize}
-    \item \textbf{Union by rank}\footnote{Es equivalente usar la alternativa \textbf{union by size}, que usa la cantidad de nodos en el árbol en lugar de la altura.}: Esto implica mantener la altura de cada árbol guardado, lo cual en este caso no es costoso: la única forma en la que puede cambiar es cuando se agrega otro árbol $T$ a la raíz como hijo, y en tal caso la altura pasa a ser el mínimo entre la anterior y $h(T) + 1$. Esto se utiliza a la hora de decidir qué raíz utilizar para el nuevo árbol de \proc{Union}: se elije la que resulte en menor altura.
+    \item \textbf{Union by rank}\footnote{Es equivalente usar la alternativa \textbf{union by size}, que usa la cantidad de nodos en el árbol en lugar de la altura.}: Esto implica mantener la altura de cada árbol guardado, lo cual en este caso no es costoso: la única forma en la que puede cambiar es cuando se agrega otro árbol $T$ a la raíz como hijo, y en tal caso la altura pasa a ser el mínimo entre la anterior y $h(T) + 1$. Esto se utiliza a la hora de decidir qué raíz utilizar para el nuevo árbol de \proc{Union}: se elije la que resulte en menor altura (queda como raíz el representante de mayor rango).
     \item \textbf{Path compression}: Esta optimización se basa en el hecho de que la estructura interna del árbol no es rígida: solo se debe cumplir que la raíz sea el representante de todos los nodos. Por ende, cada vez que se realiza un \proc{Find}, todos los vértices transitados se pueden colocar como hijos directos del árbol.
 \end{itemize}
 
@@ -1308,6 +1308,8 @@ Análogamente, el camino maximín es aquél que maximiza el peso de la arista me
 $$P_M = \arg\max{\{\min{\{w(e) \mid e \in P\}} \mid P \text{ camino entre $u$ y $v$}\}}$$
 
 % TODO: Imagen
+
+Esta 
 
 \section{Solución}
 
