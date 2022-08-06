@@ -1048,7 +1048,7 @@ Para implementar este algoritmo, no es necesario ordenar directamente los vérti
 
 \section{Algoritmo de Kosaraju}
 
-El algoritmo de Kosaraku es un algoritmo lineal que encuentra las \hyperref[recorridos-digrafos]{componentes fuertemente conexas} de un digrafo $G$. Se basa en hacer $2$ recorridos DFS: el primero se utiliza para obtener un post-order de los vértices del grafo, mientras que el segundo lo recorre de manera inversa para armar los componentes. Este segundo DFS se hace sobre $G^T$, el digrafo cuyas aristas tienen el sentido opuesto al de las de $G$. El algoritmo es el siguiente:
+El algoritmo de Kosaraju es un algoritmo lineal que encuentra las \hyperref[recorridos-digrafos]{componentes fuertemente conexas} de un digrafo $G$. Se basa en hacer $2$ recorridos DFS: el primero se utiliza para obtener un post-order de los vértices del grafo, mientras que el segundo lo recorre de manera inversa para armar los componentes. Este segundo DFS se hace sobre $G^T$, el digrafo cuyas aristas tienen el sentido opuesto al de las de $G$. El algoritmo es el siguiente:
 
 \begin{codebox}
     \Procname{$\proc{Kosaraju}(G)$}
@@ -1421,7 +1421,7 @@ El procedimiento general es similar al de Prim: se mantiene un árbol enraizado 
     \li $d[s] \gets 0$
     \li \For $i \gets 1$ \To $n - 1$ \Do
     \li $u \rightarrow v \gets \arg\min{\{d[x] + w(x \rightarrow y) \mid x \in V_T, y \in V - V_T\}}$
-    \li $d[u] \gets d[v] + w(u \rightarrow v)$
+    \li $d[v] \gets d[u] + w(u \rightarrow v)$
     \li $V_T \gets V_T \cup \{v\}$
     \li $E_T \gets E_T \cup \{u \rightarrow v\}$
     \End
@@ -1589,23 +1589,80 @@ El comportamiento cuando hay ciclos negativos también es correcto:
 
     Supongamos que el algoritmo no detecta ningún ciclo. Esto implica que $d[u] + w(u \rightarrow v) < d[v]$ para todas las aristas del grafo. En particular, $d[v_i] \leq d[v_{i - 1}] + w(v_{i + 1} \rightarrow v_i)\ \forall i = 1 ... l$. Sumando estas desigualdades:
     \begin{align*}
-        \sum_{i = 1}^l d[v_i] & \leq \sum_{i = 1}^l d[v_{i - 1}] + w(v_{i - 1} \rightarrow v_i) \\
+        \sum_{i = 1}^l d[v_i] & \leq \sum_{i = 1}^l d[v_{i - 1}] + w(v_{i - 1} \rightarrow v_i)                \\
         \sum_{i = 1}^l d[v_i] & \leq \sum_{i = 1}^l d[v_{i - 1}] + \sum_{i = 1}^l w(v_{i - 1} \rightarrow v_i)
     \end{align*}
 
-    Por otro lado, como $C$ es un ciclo, $v_0 = v_l$, así que:
+    Por otro lado, como $C$ es un ciclo, $v_0 = v_l$, y por ende:
     $$\sum_{i = 1}^k d[v_i] = \sum_{i = 0}^{k - 1} d[v_i] = \sum_{i = 1}^k d[v_{i - 1}]$$
 
     Como los vértices son alcanzables desde el origen, sus valores $d[v_i]$ son finitos, así que:
     \begin{align*}
-        \sum_{i = 1}^l d[v_i] & \leq \sum_{i = 1}^l d[v_{i - 1}] + \sum_{i = 1}^l w(v_{i - 1} \rightarrow v_i) \\
-        \sum_{i = 1}^l d[v_i] - \sum_{i = 1}^l d[v_{i - 1}] & \leq \sum_{i = 1}^l w(v_{i - 1} \rightarrow v_i) \\
-        0 & \leq \sum_{i = 1}^l w(v_{i - 1} \rightarrow v_i) = w(C) 
+        \sum_{i = 1}^l d[v_i]                               & \leq \sum_{i = 1}^l d[v_{i - 1}] + \sum_{i = 1}^l w(v_{i - 1} \rightarrow v_i) \\
+        \sum_{i = 1}^l d[v_i] - \sum_{i = 1}^l d[v_{i - 1}] & \leq \sum_{i = 1}^l w(v_{i - 1} \rightarrow v_i)                               \\
+        0                                                   & \leq \sum_{i = 1}^l w(v_{i - 1} \rightarrow v_i) = w(C)
     \end{align*}
 
     Esto es absurdo, así que el algoritmo tiene que haber detectado el ciclo.
-    
+
 \end{proof}
+
+\subsection{Complejidad}
+
+La complejidad de Bellman-Ford es fácil de calcular: \proc{Relajar} es una operación de tiempo constante, y corre $|E|$ veces en cada iteración (una por cada arista). Como hay $|V| - 1$ iteraciones, la complejidad es \BigO{|V||E|} (el último ciclo para comprobar la existencia de ciclos negativos es \BigO{|E|}, lo cual no cambia la complejidad).
+
+\subsection{Mejoras}
+
+% TODO
+
+\subsection{Aplicación: Sistema de Restricciones de Diferencias}
+
+Un problema que se puede resolver a través de Bellman-Ford es el de \textit{sistemas de restricciones de diferencias} (SRD). El enunciado es el siguiente:
+
+\begin{problema}
+    Encontrar un conjunto de valores $x_1, ..., x_n$, que respeten un sistema de $m$ inecuaciones de la forma:
+    $$x_i - x_j \leq c_{ij}$$
+\end{problema}
+
+El problema se puede \hyperref[reducciones]{reducir} a camino mínimo el digrafo $D$, que tiene las siguiente características:
+\begin{itemize}
+    \item Para cada $i = 1, ..., n$, hay un vértice $v_i \in V_D$ que se corresponde con la incógnita $x_i$.
+    \item Para cada inecuación $x_i - x_j \leq c_{ij}$, hay un arco $v_j \rightarrow v_i \in E_D$ de peso $w(v_j \rightarrow v_i) = c_{ij}$.
+    \item Hay un vértice adicional $v_0$, que cuenta con arcos $v_0 \rightarrow v_i$ hacia todos los vértices $v_i$, todos de peso $w(v_0 \rightarrow v_i) = 0$.
+\end{itemize}
+
+El sistema tiene solución solo cuando el digrafo no tiene ciclos negativos
+
+\begin{theorem*}
+    Un sistema SRD tiene solución cuando el digrafo correspondiente $D$ no tiene ciclos negativos, y en tal caso la solución es $\{x_i = \delta(v_0, v_i) \mid 1 \leq i \leq n\}$.
+\end{theorem*}
+\begin{proof}
+    Primero, veamos que pasa si $D$ tiene algún ciclo negativo $C = v_{i_0} \cdots v_{i_l}$. Supongamos que existe una solución $\{x_1, ..., x_n\}$. En tal caso, se tiene:
+    $$\sum_{j = 1}^l w(v_{i_{j - 1}} \rightarrow v_{i_j}) = \sum_{j = 1}^l c_{i_j i_{j - 1}} < 0$$
+
+    Si se suman las inecuaciones correspondientes del sistema, se llega a:
+    \begin{align*}
+        \underbrace{\sum_{j = 1}^l v_{i_j} - v_{i_{j - 1}}}_{\text{Suma telescópica}} & \leq \sum_{j = 1}^l c_{i_j i_{j - 1}} < 0 \\
+        v_{i_l} - v_{i_0} & < 0
+    \end{align*}
+
+    Como $C$ es un ciclo, $v_{i_l} = v_{i_0}$, así que $0 < 0$ (\textbf{Absurdo}). Esto implica que no puede existir una solución para el sistema.
+
+    Por otro lado, si no existe ningún ciclo de peso negativo, tomemos la asignación de valores $\{x_i = \delta(v_0, v_i) \mid 1 \leq i \leq n\}$. Entonces, para cada arco del grafo $v_j \rightarrow v_i$, se cumple la desigualdad triangular:
+    $$\delta(v_0, v_i) \leq \delta(v_0, v_j) + w(v_j \rightarrow v_i)$$
+
+    Reemplazando por los valores representados en el sistema,
+    \begin{align*}
+        x_i & \leq x_j + c_{ij} \\
+        x_i - x_j & \leq c_{ij}
+    \end{align*}
+
+    Es decir, se cumplen todas las desigualdades, así que $\{x_i = \delta(v_0, v_i) \mid 1 \leq i \leq n\}$ es una solución al sistema.
+
+\end{proof}
+
+Entonces, el sistema de ecuaciones se puede resolver encontrando el camino mínimo de un origen a todos los vértices o detectando algún ciclo de peso negativo alcanzable, que es precisamente lo que logra el algoritmo Bellman-Ford.
+
 
 % Labels de capítulos futuros
 \label{flujo}
