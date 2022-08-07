@@ -900,7 +900,7 @@ Para lograr esto, BFS utiliza como frontera una cola, donde los elementos son pr
         \li $\id{visitados} \gets \id{visitados} \cup \{u\}$
         \li $d[u] \gets d[v] + 1$
         \li Agregar $u$ a $T$ como hijo de $v$.
-        \li $\proc{Encolar}(Q, v)$
+        \li $\proc{Encolar}(Q, u)$
         \End
         \End
         \End
@@ -1023,6 +1023,7 @@ Si el grafo recorrido $G$ no es conexo, se puede formar un bosque donde cada com
 \end{codebox}
 
 \section{Orden Topológico}
+\label{orden-topologico}
 
 \subsection{Definición}
 
@@ -1580,7 +1581,7 @@ El comportamiento cuando hay ciclos negativos también es correcto:
 
     \textbf{Paso inductivo}: Si la propiedad vale para $k - 1$, entonces $d_{k - 1}[u] < \infty$ para los $u$ a distancia $\leq k - 1$ de $s$. Después de la iteración $k$, eso se sigue cumpliendo para esos vértices, ya que \proc{Relajar} asigna un mínimo entre dos valores, uno de los cuales es $d_{k - 1}[u]$, así que $d_k[u] \leq d_{k - 1}[u] < \infty$.
 
-    Por otro lado, si un vértice $u$ está a distancia $k$ de $s$, existe un camino $P = s \cdots u$ tal que $|P|$. Si llamamos $u'$ al anteúltimo vértice de $P$, se puede ver que $d_{k - 1}[u] < \infty$, ya que el camino $P_{su'}$ tiene longitud $k - 1$ (hipótesis inductiva). Luego, el valor $d_k[u]$ está dado por un mínimo entre dos valores, uno de los cuales es $d_{k - 1}[u'] + w(u' \rightarrow u) < \infty$ (es una suma de valores finitos), así que $d_k[u] < \infty$. Entonces, queda demostrado el caso $k$.
+    Por otro lado, si un vértice $u$ está a distancia $k$ de $s$, existe un camino $P = s \cdots u$ tal que $|P| = k$. Si llamamos $u'$ al anteúltimo vértice de $P$, se puede ver que $d_{k - 1}[u] < \infty$, ya que el camino $P_{su'}$ tiene longitud $k - 1$ (hipótesis inductiva). Luego, el valor $d_k[u]$ está dado por un mínimo entre dos valores, uno de los cuales es $d_{k - 1}[u'] + w(u' \rightarrow u) < \infty$ (es una suma de valores finitos), así que $d_k[u] < \infty$. Entonces, queda demostrado el caso $k$.
 
     En el caso particular de $k = |V| - 1$, cualquier vértice $v$ alcanzable desde $s$ tiene $d[v] < \infty$, ya que si existe un recorrido entre ambos, se pueden recortar los ciclos del mismo para obtener un camino (que tiene una longitud de a lo sumo $|V| - 1$).
 
@@ -1643,7 +1644,7 @@ El sistema tiene solución solo cuando el digrafo no tiene ciclos negativos
     Si se suman las inecuaciones correspondientes del sistema, se llega a:
     \begin{align*}
         \underbrace{\sum_{j = 1}^l v_{i_j} - v_{i_{j - 1}}}_{\text{Suma telescópica}} & \leq \sum_{j = 1}^l c_{i_j i_{j - 1}} < 0 \\
-        v_{i_l} - v_{i_0} & < 0
+        v_{i_l} - v_{i_0}                                                             & < 0
     \end{align*}
 
     Como $C$ es un ciclo, $v_{i_l} = v_{i_0}$, así que $0 < 0$ (\textbf{Absurdo}). Esto implica que no puede existir una solución para el sistema.
@@ -1653,7 +1654,7 @@ El sistema tiene solución solo cuando el digrafo no tiene ciclos negativos
 
     Reemplazando por los valores representados en el sistema,
     \begin{align*}
-        x_i & \leq x_j + c_{ij} \\
+        x_i       & \leq x_j + c_{ij} \\
         x_i - x_j & \leq c_{ij}
     \end{align*}
 
@@ -1663,6 +1664,142 @@ El sistema tiene solución solo cuando el digrafo no tiene ciclos negativos
 
 Entonces, el sistema de ecuaciones se puede resolver encontrando el camino mínimo de un origen a todos los vértices o detectando algún ciclo de peso negativo alcanzable, que es precisamente lo que logra el algoritmo Bellman-Ford.
 
+\section{Algoritmo de Floyd-Warshall}
+
+\subsection{Definición}
+
+El \textit{algoritmo de Floyd-Warshall} resuelve el problema de caminos mínimos todos a todos (APSP\footnote{All Pairs Shortest Paths}). Esto también se puede lograr corriendo alguno de los algoritmos anteriores (que devuelve el camino mínimo de uno a todos) para cada vértice, pero tendría desventajas: Dijkstra solo funciona cuando los pesos son no negativos, y $|V|$ ejecuciones  de Bellman-Ford sería (en general) más lento que este nuevo algoritmo. Al igual que antes, el grafo de entrada no puede tener ciclos de peso negativo.
+
+Dado un grafo pesado $G = (V, E, w)$, se puede definir una matriz $L \in \R^{|V| \times |V|}$\footnote{Esto se puede considerar una extensión de la representación matriz de adyacencia, donde ahora cuando dos vértices están conectados por una arista se guarda su peso, y si no se guarda $\infty$.}, donde cada posición es el peso de la arista entre un par de vértices (si no existe una arista, el peso se considera infinito). Es decir,
+$$
+    l_{ij} =
+    \begin{cases}
+        0                      & \si i = j                     \\
+        w(v_i \rightarrow v_j) & \si v_i \rightarrow v_j \in E \\
+        \infty                 & \ecc
+    \end{cases}
+$$
+
+
+El método calcula la \textit{matriz de distancias}, esto es, una matriz $D \in \R^{|V| \times |V|}$ tal que:
+$$d_{ij} =
+    \begin{cases}
+        \delta(v_i, v_j) & \si \text{$v_i$ y $v_j$ están conectados} \\
+        \infty           & \ecc
+    \end{cases}$$
+
+Para lograrlo, emplea la técnica de programación dinámica, empezando por $D^0 = L$, y calculando la siguiente matriz a través de la recurrencia:
+$$d^k_{ij} = \min{\{d^{k - 1}_{ij}, d^{k - 1}_{ik} + d^{k - 1}_{kj}\}}$$
+
+La matriz $D^k$ puede interpretarse como la matriz de distancias mínimas cuando se consideran solo los caminos que pasan por los vértices intermedios $\{v_1, ..., v_k\}$. Luego, después de $n$ iteraciones, la matriz $D^n$ es la matriz de distancias $D$.
+
+El algoritmo se puede expresar de la siguiente manera:
+
+\begin{codebox}
+    \Procname{$\proc{Floyd-Warshall}(G)$}
+    \li $D \gets L$
+    \li \For $k = 1$ \To $|V|$ \Do
+    \li \For $i = 1$ \To $|V|$ \Do
+    \li \For $j = 1$ \To $|V|$ \Do
+    \li $d_{ij} \gets \min{\{d_{ij}, d_{ik} + d_{kj}\}}$
+    \End
+    \End
+    \End
+    \li \Return $D$
+\end{codebox}
+
+En realidad, este algoritmo no implementa la recurrencia directamente: como utiliza una única matriz, hay casos en los que se asigna $d^k_{ij} = \min{\{d^{k - 1}_{ij}, d^k_{ik} + d^k_{kj}\}}$. Esto no afecta el resultado, solo tiene el efecto de converger más rápido a la matriz de distancias mínimas.
+
+\subsection{Correctitud}
+
+\begin{theorem*}
+    Dado un (di)grafo pesado $G = (V, E, w)$ sin ciclos negativos, el algoritmo de Floyd-Warshall devuelve la matriz de distancias del mismo.
+\end{theorem*}
+\begin{proof}
+    Para demostrar eso, primero demostramos por inducción que, en la iteración $k$ del ciclo exterior de FW, se cumple $d^k_{ij} = \delta(v_i, v_j)$ para cualquier par de vértices $v_i, v_j \in V$ conectados por un camino mínimo $P$ cuyos vértices intermedios están contenidos en $\{v_1, ..., v_k\}$ (es decir, $P \subseteq \{v_1, ..., v_k\} \cup \{v_i, v_j\}$). Además, se cumple para todos los vértices que $d^k_{ij} \geq \delta(v_i, v_j)$ (en todas las iteraciones).
+
+    \textbf{Caso Base}: El caso base es $k = 0$. El conjunto de vértices intermedios sería $\emptyset$, y los únicos caminos mínimos sin vértices intermedios son aquellos constituidos por una sola arista. En esos casos, se cumple que $d^0_{ij} = w(v_i \rightarrow v_j) = \delta(v_i, v_j)$, gracias a que se asigna $D^0 \gets L$.
+
+    Por otro lado, como asumimos que no hay ciclos de peso negativo, $\delta(v_i, v_i) = 0 = d^0_{ii} \forall i$, y para una arista $v_i \rightarrow v_j$ se tiene por desigualdad triangular:
+    $$d^0_{ij} = w(v_i \rightarrow v_j) = \underbrace{{\delta(v_i, v_i)}}_{= 0} + w(v_i \rightarrow v_j) \geq \delta(v_i, v_j)$$
+
+    \textbf{Paso Inductivo}: Supongamos que la propiedad vale en el caso $k - 1$. Recordemos que la asignación que se realiza en la iteración $k$ es:
+    $$d^k_{ij} = \min{\{d^{k - 1}_{ij}, d^{k - 1}_{ik} + d^{k - 1}_{kj}\}}$$
+
+    Para demostrar que $d^k_{ij} \geq \delta(v_i, v_j)$, notemos dos cosas:
+    \begin{itemize}
+        \item $d^{k - 1}_{ij} \geq \delta(v_i, v_j)$, por HI.
+        \item $d^{k - 1}_{ik} + d^{k - 1}_{kj} \geq \delta(v_i, v_k) + \delta(v_k, v_j) \geq \delta(v_i, v_j)$, por HI y desigualdad triangular, respectivamente.
+    \end{itemize}
+
+    En todo caso, se cumple que $d^k_{ij} \geq \delta(v_i, v_j)$.
+
+    Para los pares de vértices con caminos mínimos formados por vértices intermedios en el conjunto $\{v_1, ..., v_{k - 1}\}$, se sigue cumpliendo la propiedad, ya que la HI implica que $d^{k - 1}_{ij} = \delta(v_i, v_j)$ (así que $d^k_{ij} \leq \delta(v_i, v_j)$), y como recién demostramos que $d^k_{ij} \geq \delta(v_i, v_j)$, se tiene $d^k_{ij} = \delta(v_i, v_j)$.
+
+    Por otro lado, sea $P = v_x \cdots v_y$ algún camino mínimo entre $v_x$ y $v_y$ que contiene al vértice $v_k$ y cuyos vértices intermedios están contenidos en $\{v_1, ..., v_k\}$. $P$ se puede descomponer como la concatenación $P_{v_x v_k} + P_{v_k v_y}$, y estos dos subcaminos (que son mínimos) están formados por vértices intermedios del conjunto $\{v_1, ..., v_{k - 1}\}$ (si estuviera $v_k$ en el medio, aparecería dos veces, y no serían caminos simples). Esto, por HI, implica que $d^{k - 1}_{xk} = \delta(v_x, v_k) = w(P_{v_x v_k})$ y $d^{k - 1}_{ky} = \delta(v_k, v_y) = w(P_{v_k v_y})$, así que cuando se asigna:
+    $$d^k_{ij} = \min{\{d^{k - 1}_{ij}, d^{k - 1}_{ik} + d^{k - 1}_{kj}\}}$$
+
+    Se obtiene $d^k_{xy} \leq d^{k - 1}_{xk} + d^{k - 1}_{ky} = w(P_{v_x v_k}) + w(P_{v_k v_y}) = w(P) = \delta(v_x, v_y)$ que, junto con $d^k_{xy} \geq \delta(v_x, v_y)$ (se demostró previamente), significa que $d^k_{xy} = \delta(v_x, v_y)$. Queda demostrado entonces que la propiedad vale para el caso $k$.
+
+    Como, por inducción, la propiedad se cumple después de cualquier iteración $k$, se cumple en particular para después de la última, lo cual significa que todo par de vértices $v_i, v_j$ conectado por un camino mínimo con vértices intermedios en $\{1, ..., v_{|V|}\} = V$ cumple $d^k_{ij} = \delta(v_i, v_j)$. Esto incluye a cualquier par de vértices conectados, y para los vértices que no son alcanzables entre sí, la segunda propiedad garantiza que $d^k_{ij} \geq \delta(v_i, v_j) = \infty \implies d^k_{ij} = \infty$. Por ende, todas las distancias de $D^{|V|}$ son correctas.
+
+\end{proof}
+
+\subsection{Complejidad}
+
+La complejidad de Floyd-Warshall es fácil de calcular: tiene 3 ciclos anidados, de $|V|$ iteraciones cada uno, en cuyo interior se realizan operaciones de tiempo constante, así que el algoritmo es \BigO{|V|^3}. Como se mencionó previamente, esto es mejor que correr $n$ veces Bellman-Ford, siempre que el grafo sea conexo (porque en ese caso $|E| \geq |V| - 1 \implies |E| \in \BigOmega{|V|}$).
+
+Una posible mejora sería chequear en cada iteración si $d_{ii} < 0$ para algún $i$, ya que esto implica que el grafo tiene un ciclo negativo (en el teorema anterior se demuestra $d_{ii} \geq \delta(v_i, v_i) = 0$ cuando no hay ciclos negativos), y cortar la ejecución.
+
+\section{Camino Mínimo en DAGs}
+
+\subsection{Definición}
+
+Para el caso de digrafos acíclicos, camino mínimo uno a muchos puede resolverse utilizando un algoritmo más eficiente que los anteriores. Este se basa en la siguiente fórmula para la distancia entre dos nodos:
+$$
+\delta(u, v) =
+\begin{cases}
+    0 & \si u = v \\
+    \min{\{\delta(u, z) + w(z \rightarrow v) \mid z \in N^-(v)\}} & \ecc
+\end{cases}
+$$
+
+Esto es intuitivo: la distancia mínima entre un par de nodos $u, v$ es el peso de algún camino mínimo $P = u \cdots v$. El anteúltimo vértice del camino $z$ está en el vecindario de entrada de $v$ (ya que tiene una arista que apunta hacia él), mientras que el subcamino $P_{uz}$ también es mínimo.
+
+Esta relación no se puede utilizar para computar las distancias en un grafo con un ciclo $C = v \cdots v$, ya que la llamada $\delta(u, v)$ llevaría a un bucle de recursión infinita (porque existe un camino de $v$ a $v$ a través de los vecindarios de entrada).
+
+\subsubsection{Versión Top-Down}
+
+La fórmula se puede implementar como un algoritmo de programación dinámica top-down. Asumiendo que el arreglo de distancias (que funciona estructura de memoización) $D$ se inicializa con $\perp$ en todas las posiciones, el código es el siguiente:
+
+\begin{codebox}
+    \Procname{$\proc{SP-DAG-Top-Down}(G, s, v)$}
+    \li \If $s == v$ \Then
+    \li \Return $0$
+    \End
+    \li \If $D[v] ==\ \perp$ \Then
+    \li $D[v] \gets \min{\{\proc{SP-DAG-Top-Down}(G, s, z) + w(z \rightarrow v) \mid z \in N^-(v)\}}$
+    \End
+    \li \Return $D[v]$
+\end{codebox}
+
+\subsubsection{Versión Bottom-Up}
+
+Esto también se puede implementar de forma bottom-up: las distancias son calculadas en \hyperref[orden-topologico]{orden topológico}, lo cual asegura que $D[z]$ es calculado antes de $D[v]$ para cualquier $z \in N^-(v)$\footnote{Esto se debe a que, en un orden topológico, los vértices $v$ que son alcanzables desde $z$ aparecen después en la secuencia}.
+
+\begin{codebox}
+    \Procname{$\proc{SP-DAG-Bottom-Up}(G, s)$}
+    \li Inicializar arreglo de distancias $D$.
+    \li Calcular un orden topológico de $G$.
+    \li \For \Each $v \in V$, en orden topológico \Do
+    \li $D[v] \gets \min{\{D[z] + w(z \rightarrow v) \mid z \in N^-(v)\}}$
+    \End
+    \li \Return $D$
+\end{codebox}
+
+\subsection{Complejidad}
+
+Ambos métodos tienen una complejidad \BigO{|V| + |E|} ya que pasan $1$ vez por cada nodo $v$, realizando una operación \BigO{d^-(v)}. En el caso bottom-up, se realiza el paso adicional de computar un orden topológico, pero esto también se puede realizar en tiempo lineal a través de DFS.
 
 % Labels de capítulos futuros
 \label{flujo}
