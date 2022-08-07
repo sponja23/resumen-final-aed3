@@ -585,7 +585,7 @@ El grafo $K_n$ es el \textit{grafo completo} de $n$ vértices, los cuales son to
 
 \subsection{Generalizaciones}
 
-Algunas generalizaciones de grafos\footnote{No se estudian mucho en la materia.} son:
+Algunas generalizaciones\footnote{No se estudian mucho en la materia.} de los grafos son:
 \begin{itemize}
     \item \textbf{Multigrafos}: En un multigrafo, $E$ pasa a ser un multiconjunto, es decir, pueden haber varias aristas entre un mismo par de vértices.
     \item \textbf{Pseudografo}: Los pseudografos pueden tiene varias aristas entre un mismo par de vértices, y también puede haber aristas que unan a un mismo par de vértices (llamadas \textit{loops}).
@@ -595,7 +595,7 @@ Algunas generalizaciones de grafos\footnote{No se estudian mucho en la materia.}
 
 \begin{itemize}
     \item Un \textit{recorrido} en un grafo es una secuencia de vértices $P = v_0 v_1 \cdots v_k$ tal que todos los pares consecutivos son adyacentes, es decir, $(v_i, v_{i+1}) \in E\ \forall i = 0, ..., k - 1$. Para multi- y pseudo-grafos, se debe especificar entre qué aristas se pasa.
-    \item Un \textit{camino} es un recorrido que no pasa por el mismo vértice $2$ veces.
+    \item Un \textit{camino}\footnote{Hay ambigüedad en el término: a veces se llama camino a los recorridos, en cuyo caso a los recorridos sin vértices repetidos se les dice \textit{camino simple}.} es un recorrido que no pasa por el mismo vértice $2$ veces.
     \item Una \textit{sección} de un recorrido $P$ es una subsecuencia $S = v_i v_{i+1} \cdots v_j$ de vértices consecutivos de $P$, y se denota $P_{v_i v_j}$.
     \item Un \textit{circuito} es un recorrido que empieza y termina en el mismo vértice.
     \item Un \textit{ciclo} o \textit{circuito simple} es un circuito de $3$ o más vértices que no pasa $2$ veces por el mismo vértice (salvo por el principio y fin).
@@ -1757,11 +1757,11 @@ Una posible mejora sería chequear en cada iteración si $d_{ii} < 0$ para algú
 
 Para el caso de digrafos acíclicos, camino mínimo uno a muchos puede resolverse utilizando un algoritmo más eficiente que los anteriores. Este se basa en la siguiente fórmula para la distancia entre dos nodos:
 $$
-\delta(u, v) =
-\begin{cases}
-    0 & \si u = v \\
-    \min{\{\delta(u, z) + w(z \rightarrow v) \mid z \in N^-(v)\}} & \ecc
-\end{cases}
+    \delta(u, v) =
+    \begin{cases}
+        0                                                             & \si u = v \\
+        \min{\{\delta(u, z) + w(z \rightarrow v) \mid z \in N^-(v)\}} & \ecc
+    \end{cases}
 $$
 
 Esto es intuitivo: la distancia mínima entre un par de nodos $u, v$ es el peso de algún camino mínimo $P = u \cdots v$. El anteúltimo vértice del camino $z$ está en el vecindario de entrada de $v$ (ya que tiene una arista que apunta hacia él), mientras que el subcamino $P_{uz}$ también es mínimo.
@@ -1800,6 +1800,73 @@ Esto también se puede implementar de forma bottom-up: las distancias son calcul
 \subsection{Complejidad}
 
 Ambos métodos tienen una complejidad \BigO{|V| + |E|} ya que pasan $1$ vez por cada nodo $v$, realizando una operación \BigO{d^-(v)}. En el caso bottom-up, se realiza el paso adicional de computar un orden topológico, pero esto también se puede realizar en tiempo lineal a través de DFS.
+
+\section{Algoritmo de Johnson}
+
+\subsection{Definición}
+
+El algoritmo de Johnson resuelve el problema de camino mínimo todos a todos. Es una alternativa al algoritmo de Floyd-Warshall, y es más eficiente para grafos ralos. La idea general del método es ``repesar'' las aristas del grafo, de forma que todos los pesos nuevos sean no negativos y se preserven los caminos mínimos, para luego aplicar el algoritmo de Dijkstra en cada nodo.
+
+El proceso de repesar se basa en el siguiente teorema:
+
+\begin{theorem*}
+    Dado un (di)grafo pesado $G = (V, E, w)$ y una función $h: V \longrightarrow \R$, se puede definir una nueva función de peso:
+    $$\hat{w}(u \rightarrow v) = w(u \rightarrow v) + h(u) - h(v)$$
+
+    Luego, si se toma el grafo ``repesado'' $\hat{G} = (V, E, \hat{w})$, cualquier camino mínimo $P$ en $G$ sigue siendo mínimo en $\hat{G}$, y $G$ tiene un ciclo negativo $\iff$ $\hat{G}$ tiene un ciclo negativo.
+\end{theorem*}
+\begin{proof}
+    Dado un recorrido cualquiera $P = \langle v_0, ..., v_k \rangle$ se puede ver que:
+    \begin{align*}
+        \hat{w}(P) & = \sum_{i=1}^k \hat{w}(v_{i - 1}, v_i)                                                                       \\
+                   & = \sum_{i=1}^k w(v_{i - 1}, v_i) + h(v_{i - 1}) - h(v_i)                                                     \\
+                   & = \sum_{i=1}^k w(v_{i - 1}, v_i) + \underbrace{\sum_{i=1}^k h(v_{i - 1}) - h(v_i)}_{\text{Suma telescópica}} \\
+                   & = \sum_{i=1}^k w(v_{i - 1}, v_i) + h(v_0) - h(v_k)                                                           \\
+                   & = w(P) + h(v_0) - h(v_k)
+    \end{align*}
+
+    Por ende, si $P'$ es un camino mínimo entre $u$ y $v$ en $G$, se tiene:
+    \begin{flalign*}
+        && w(P') & \leq w(P) && \forall P \text{ camino entre $u$ y $v$} \\
+        && w(P')  + h(u) - h(v) & \leq w(P) + h(u) - h(v) && \forall P \text{ camino entre $u$ y $v$} \\
+        && \hat{w}(P') & \leq \hat{w}(P) && \forall P \text{ camino entre $u$ y $v$}
+    \end{flalign*}
+
+    Entonces, $P'$ sigue siendo camino mínimo en $\hat{G}$.
+
+    Por otro lado, dado un ciclo $C = u \cdots u$, su peso en $\hat{G}$ es $\hat{w}(C) = w(C) + h(u) - h(u) = w(C)$, así que $\hat{G}$ tiene ciclos negativos si y solo si $G$ los tiene.
+
+\end{proof}
+
+Para aprovechar este resultado, hace falta encontrar una función $h: V \longrightarrow \R$ que permita asignar valores no negativos a todos los pesos. El algoritmo de Johnson logra esto agregando un vértice adicional $s$ a $G$, conectado a todos los vértices con aristas de peso $0$, y calculando las distancias mínimas de $s$ a los demás (a través del algoritmo de Bellman-Ford, acá es donde el procedimiento falla si hay un ciclo negativo). Luego, toma $h(v) = \delta(s, v)$, que resulta en pesos no negativos ya que:
+\begin{flalign*}
+    && \delta(s, v) & \leq \delta(s, u) + w(u \rightarrow v) && \text{(Desigualdad triangular)} \\
+    && h(v) & \leq h(u) + w(u \rightarrow v) && \\
+    && 0 & \leq w(u \rightarrow v) + h(u) - h(v) && \\
+    && 0 & \leq \hat{w}(u \rightarrow v) &&
+\end{flalign*}
+
+Luego, se puede correr Dijkstra en cada vértice para obtener las distancias de todos a todos. El código es el siguiente:
+
+\begin{codebox}
+    \Procname{$\proc{Johnson}(G, w)$}
+    \li $G' \gets (V \cup \{s\}, E \cup \{s \rightarrow v \mid s \in E\})$, $w(s, v) = 0\ \forall v \in V$
+    \li \If $\proc{Bellman-Ford}(G', w, s)$ encuentra un ciclo negativo \Then
+    \li \Return Hay un ciclo negativo
+    \li \Else \proc{Bellman-Ford} devolvió las distancias $\delta(s, v)\ \forall v \in V$.
+    \li Definir $\hat{w}(u \rightarrow v) \gets w(u \rightarrow v) + \delta(s, u) - \delta(s, v)\ \forall u \rightarrow v \in E$.
+    \li Inicializar matriz $D \in \R^{|V| \times |V|}$
+    \li \For \Each $u \in V$ \Do
+    \li Correr $\proc{Dijkstra}(G, \hat{w}, u)$ para obtener $\hat{\delta}(u, v)\ \forall v \in V$
+    \li Asignar $d_{uv} \gets \hat{\delta}(u, v) - \delta(s, v) + \delta(s, u)\ \forall v \in V$
+    \End
+    \li \Return $D$
+    \End
+\end{codebox}
+
+\subsection{Complejidad}
+
+La ejecución del algoritmo de Johnson se divide en dos partes. Primero, se ejecuta Bellman-Ford en el vértice agregado $s$, lo cual tiene una complejidad de \BigO{|V||E|}. Luego, se corre el algoritmo de Dijkstra una vez en cada vértice, y el tiempo de ejeución de eso depende de la cola de prioridad que utilice ese procedimiento. Si se utiliza un Fibonacci heap, la complejidad de Dijkstra es \BigO{|V|\log{|V|} + |E|}, así que la complejidad total de Johnson es \BigO{|V|^2\log{|V|} + |V||E|}.
 
 % Labels de capítulos futuros
 \label{flujo}
