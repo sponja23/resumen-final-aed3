@@ -1226,7 +1226,7 @@ Internamente, la estructura se implementa como un bosque, donde cada árbol se c
 
 Esto alcanza para implementar a la estructura, pero la complejidad no es ideal: los árboles podrían ser degenerados (una línea donde cada nodo tiene $1$ solo hijo), lo cual haría que \proc{Find} sea \BigO{n}. Para evitar que suceda esto, se emplean 2 heurísticas:
 \begin{itemize}
-    \item \textbf{Union by rank}\footnote{Es equivalente usar la alternativa \textbf{union by size}, que usa la cantidad de nodos en el árbol en lugar de la altura.}: Esto implica mantener la altura de cada árbol guardado, lo cual en este caso no es costoso: la única forma en la que puede cambiar es cuando se agrega otro árbol $T$ a la raíz como hijo, y en tal caso la altura pasa a ser el mínimo entre la anterior y $h(T) + 1$. Esto se utiliza a la hora de decidir qué raíz utilizar para el nuevo árbol de \proc{Union}: se elije la que resulte en menor altura (queda como raíz el representante de mayor rango).
+    \item \textbf{Union by rank}\footnote{Es equivalente usar la alternativa \textbf{union by size}, que usa la cantidad de nodos en el árbol en lugar de la altura.}: Esto implica mantener la altura de cada árbol guardado, lo cual en este caso no es costoso: la única forma en la que puede cambiar es cuando se agrega otro árbol $T$ a la raíz como hijo, y en tal caso la altura pasa a ser el mínimo entre la anterior y $h(T) + 1$. Esto se utiliza a la hora de decidir qué raíz utilizar para el nuevo árbol de \proc{Union}: se elige la que resulte en menor altura (queda como raíz el representante de mayor rango).
     \item \textbf{Path compression}: Esta optimización se basa en el hecho de que la estructura interna del árbol no es rígida: solo se debe cumplir que la raíz sea el representante de todos los nodos. Por ende, cada vez que se realiza un \proc{Find}, todos los vértices transitados se pueden colocar como hijos directos del árbol.
 \end{itemize}
 
@@ -1868,9 +1868,291 @@ Luego, se puede correr Dijkstra en cada vértice para obtener las distancias de 
 
 La ejecución del algoritmo de Johnson se divide en dos partes. Primero, se ejecuta Bellman-Ford en el vértice agregado $s$, lo cual tiene una complejidad de \BigO{|V||E|}. Luego, se corre el algoritmo de Dijkstra una vez en cada vértice, y el tiempo de ejeución de eso depende de la cola de prioridad que utilice ese procedimiento. Si se utiliza un Fibonacci heap, la complejidad de Dijkstra es \BigO{|V|\log{|V|} + |E|}, así que la complejidad total de Johnson es \BigO{|V|^2\log{|V|} + |V||E|}.
 
-% Labels de capítulos futuros
+
+\chapter{Flujo en Redes}
 \label{flujo}
 
+\section{Flujo máximo}
+
+Una \textit{red de flujo} es un digrafo $N = (V, E)$ junto con una función de \textit{capacidad} $u: E \longrightarrow \Z_+$ y un par de nodos $s, t \in V$, llamados origen y destino. Un \textit{flujo factible} $x: E \longrightarrow \Z_+$ en esa red es una asignación de valores a las aristas, de forma que se cumpla:
+\begin{itemize}
+    \item $0 \leq x(v_i \rightarrow v_j) \leq u(v_i \rightarrow v_j)$ (Respeta las capacidades).
+    \item $\forall v_i \in V - \{s, t\},$
+        \begin{flalign*}
+            && \sum_{u \in N^+(v)} x(u \rightarrow v) = \sum_{u \in N^-(v)} x(v \rightarrow u) && \textit{(Conservación)}
+        \end{flalign*}
+\end{itemize}
+
+
+El \textit{valor del flujo} $x$ es la cantidad neta que sale del vértice $s$, es decir:
+    $$F = \sum_{u \in N^+(s)} x(u \rightarrow s) - \sum_{u \in N^-(s)} x(s \rightarrow u)$$
+
+Entonces, se puede definir el problema de flujo máximo:
+
+\begin{problema}
+    Dada una red de flujo $N = (V, E, u)$ con origen $s$ y destino $t$, encontrar un flujo factible $x$ que tenga valor $F$ máximo. Es decir, maximizar:
+    $$F = \sum_{u \in N^+(v)} x(u \rightarrow s) - \sum_{u \in N^-(v)} x(s \rightarrow u)$$
+
+    Sujeto a:
+    \begin{itemize}
+        \item $0 \leq x(e) \leq u(e)\ \forall e \in E$
+        \item $\forall v_i \in V - \{s, t\},$
+                $$\sum_{u \in N^+(v)} x(u \rightarrow v) = \sum_{u \in N^-(v)} x(v \rightarrow u)$$
+    \end{itemize}
+\end{problema}
+
+Las unidades del flujo se pueden considerar ``paquetes'' que viajan del origen $s$ al destino $t$, donde cada paquete puede tomar cualquier ruta que tenga la capacidad necesaria.
+
+\subsection{Corte}
+
+Un \textit{corte} en una red de flujo $N = (V, E, u)$ es un subconjunto $S \subseteq V$ tal que $s \in S$ y $t \notin S$. Por otro lado, dado un par de subconjuntos $S, T \subseteq V$, se define:
+    $$ST = \{u \rightarrow v \mid u \rightarrow v \in E, u \in S, v \in T\}$$
+
+\begin{theorem*}
+    \leavevmode
+
+    Sea $x$ un flujo definido en una red $N = (V, E, u)$ y sea $S$ un corte. Entonces:
+    $$F = \sum_{e \in S\bar{S}} x(e) - \sum_{e \in \bar{S}S} x(e)$$
+
+    Donde $\bar{S} = V - S$.
+\end{theorem*}
+\begin{proof}
+    Sumando los flujos netos que pasan por los vértices de $S$, se obtiene:
+    $$\sum_{v \in S}\underbrace{\left(\sum_{u \in N^+(v)} x(u \rightarrow v) - \sum_{u \in N^-(v)} x(v \rightarrow u)\right)}_{\text{Siempre $0$, excepto para $v = s$}} = F + 0$$
+
+    Por otro lado, los términos de la sumatoria representan todas las aristas que conectan un nodo de $S$ con uno de $V$, así que:
+    $$F = \sum_{e \in SV} x(e) - \sum_{e \in VS} x(e)$$
+
+    Las aristas de $SS$ aparecen en ambas sumatorias, así que se cancelan. Los únicos términos que quedan los las aristas que están en $S(V - S) = S\bar{S}$:
+
+    $$F = \sum_{e \in S\bar{S}} x(e) - \sum_{e \in \bar{S}S} x(e)$$
+
+\end{proof}
+
+Por otro lado, la capacidad de un corte $S$ es la cantidad de flujo que puede salir del mismo, es decir:
+$$u(S) = \sum_{e \in S\bar{S}} u(e)$$
+
+Luego, se puede definir otro problema de flujo, el de corte mínimo:
+
+\begin{problema}
+    Dada una red de flujo $N = (V, E, u)$ con origen $s$ y destino $t$, encontrar el corte $S$ con capacidad mínima.
+\end{problema}
+
+A partir del último teorema, se puede ver que:
+    $$F = \sum_{e \in S\bar{S}} \underbrace{x(e)}_{\leq u(e)} - \sum_{e \in \bar{S}S} \underbrace{x(e)}_{\geq 0} \leq u(S)$$
+
+Esto vale para cualquier valor de flujo $F$, y cualquier corte $S$. Esto es intuitivo: como las unidades de flujos empiezan en el origen $s$, todas deben pasar por alguna arista de $S\bar{S}$ para llegar al destino $t$.
+
+\subsection{Certificado de optimalidad}
+\label{flujo-certificado-optimalidad}
+
+Un \textit{certificado de optimalidad} para una instancia de un problema de optimización es un valor que permite verificar que la solución una solución dada es efectivamente óptima (y, generalmente, hacerlo en menor tiempo que el que toma resolver el problema). El flujo máximo cuenta con uno: si se encuentra un flujo factible $x^*$ y un corte $S^*$ tales que $F^* = u(S)$, se tiene que, para cualquier valor de flujo $F$,
+    $$F \leq u(S) = F^*$$
+
+Así que $x^*$ es un flujo máximo.
+
+\subsection{Red residual y camino de aumento}
+
+Dada una red de flujo $N = (V, E, u)$ y un flujo factible $x$, la \textit{red residual} $R(N, x) = (V, E_R)$ es un digrafo\footnote{En realidad, $R(N, x)$ es un multigrafo, debido a que cuando $N$ contiene aristas $v_i \rightarrow v_j$ y $v_j \rightarrow v_i$, y estas cumplen $0 < x(e) < u(e)$, la red residual tiene 4 aristas entre $v_i$ y $v_j$.} definido por:
+\begin{itemize}
+    \item $x(v \rightarrow w) < u(v \rightarrow w) \iff v \rightarrow w \in E_R$
+    \item $x(v \rightarrow w) > 0 \iff w \rightarrow v \in E_R$
+\end{itemize}
+
+Además, se puede definir la \textit{capacidad residual} de una arista de $R(N, x)$ de la siguiente manera:
+$$
+\Delta(v \rightarrow w) = 
+\begin{cases}
+    u(v \rightarrow w) - x(v \rightarrow w) & \si v \rightarrow w \in E \\
+    x(v \rightarrow w) & \ecc
+\end{cases}
+$$
+
+Luego, un \textit{camino de aumento} es un camino orientado en el grafo $R(N, x)$ que va de $s$ a $t$. Para un camino $P$ se define $\Delta(P) = \min_{e \in P}{\{\Delta(e)\}}$.
+
+\begin{theorem*}
+    Dada una red de flujo $N = (V, E, u)$ junto con un flujo factible $x$, si $P$ es un camino entre $s$ y $t$ en la red residual $R(N, x)$, se puede definir un nuevo flujo $\bar{x}$:
+        $$
+        \bar{x}(v \rightarrow w) =
+        \begin{cases}
+            x(v \rightarrow w) + \Delta(P) & \si v \rightarrow w \in E \\
+            x(v \rightarrow w) - \Delta(P) & \si w \rightarrow v \in E \\
+            x(v \rightarrow w) & \ecc
+        \end{cases}
+        $$
+    
+    Luego, $\bar{x}$ es un flujo factible, y tiene un valor $\bar{F} = F + \Delta(P)$.
+\end{theorem*}
+\begin{proof}
+    Para facilitar la demostración, introduzco una notación no estándar: si $e = u \rightarrow v$, $e^T := v \rightarrow u$.
+
+    Primero, verifiquemos que $\bar{x}$ es un flujo factible.
+    \begin{itemize}
+        \item \textbf{Respeta las capacidades}: Solo hace falta verificar las capacidades de las aristas de $P$, ya que el flujo que pasa por las demás no se modifica (y $\bar{x}$ es un flujo factible). Entonces, veamos que pasa para las aristas $e \in P$.
+
+        Si $e \in E$, entonces $x(e) < u(e)$ (ya que la arista también está en la red residual). Además, por la definición de $\Delta(P)$, se tiene que:
+        $$\Delta(P) \leq \Delta(e) = u(e) - x(e)$$
+
+        Esto implica que el nuevo flujo de la arista respeta la capacidad:
+        $$\bar{x}(e) = x(e) + \Delta(P) \leq x(e) + u(e) - x(e) = u(e)$$
+
+        Por otro lado, si $e^T \in E$, eso implica que $x(e^T) > 0$ (ya que la arista inversa está en la red residual). En cuanto a la capacidad residual de la arista,
+        $$\Delta(P) \leq \Delta(e) = x(e^T)$$
+
+        Entonces, el nuevo flujo es no negativo:
+        $$\bar{x}(e^T) = x(e^T) - \Delta(P) \geq x(e^T) - x(e^T) = 0$$
+
+        \item \textbf{Respeta la conservación}: De nuevo, para vértices por los que no pasa el camino, el flujo no cambia, así que la conservación se mantiene.
+        
+        Para cada vértice $v \in P - \{s, t\}$, sean $e_1 = a \rightarrow v$ y $e_2 = v \rightarrow b$ las dos\footnote{Son dos aristas porque, por ser camino, no se pasa dos veces por $v$.} aristas de $P$ que contienen a $v$. Observemos que el flujo neto que pasa por $v$ es:
+            $$\sum_{e \in N^+(v)} \bar{x}(e) - \sum_{e \in N^-(v)} \bar{x}(e)$$
+
+        Para los valores de flujo de $e_1, e_2$, existen 4 posibilidades:
+        \begin{enumerate}
+            \item $e_1, e_2 \in E$: el flujo neto es:
+                \begin{align*}
+                    \sum_{e \in N^+(v)} \bar{x}(e) - \sum_{e \in N^-(v)} \bar{x}(e) = \sum_{e \in N^+(v) - \{e_1\}} x(e) - \sum_{e \in N^-(v) - \{e_2\}} x(e) + \bar{x}(e_1) - \bar{x}(e_2) \\
+                    = \sum_{e \in N^+(v) - \{e_1\}} x(e) - \sum_{e \in N^-(v) - \{e_2\}} x(e) + x(e_1) + \Delta(P) - x(e_2) - \Delta(P) \\
+                    = \sum_{e \in N^+(v)} x(e) - \sum_{e \in N^-(v)} x(e) = 0
+                \end{align*}
+            % TODO: los otros casos
+            \item $e_1^T, e_2^T \in E$:
+            \item $e_1, e_2^T \in E$:
+            \item $e_1^T, e_2 \in E$:
+        \end{enumerate}
+    \end{itemize}
+
+    Por otro lado, para calcular el valor del nuevo flujo, vamos a asumir que el vértice $s$ no tiene aristas entrantes ($d^-(s) = 0$). Esto es razonable: si hay flujo entrante a $s$, se forma un ciclo que se puede ``cancelar'', así que no es necesario modelarlo. Bajo esta suposición, el valor del flujo $\bar{x}$ es:
+    $$\bar{F} = \sum_{w \in N^-(s)} x(w \rightarrow s) - \sum_{w \in N^+(s)} x(s \rightarrow w)$$
+\end{proof}
+
+\section{Método de Ford-Fulkerson}
+
+El \textit{método de Ford-Fulkerson} es un esquema para resolver el problema de flujo máximo en una red de flujo basado en encontrar caminos de aumento dentro de la red residual. Esto funciona gracias al siguiente teorema:
+
+\begin{theorem*}
+    Sea $N = (V, E, u)$ una red de flujo y $x$ un flujo factible en esa red. Luego, $x$ es un flujo máximo $\iff$ no existe camino de aumento en $R(G, x)$.
+\end{theorem*}
+\begin{proof}
+    \leavevmode
+
+    $\implies$) Se demuestra el contrarrecíproco: por el teorema anterior, si existe un camino de aumento $P$, se puede definir el flujo $\bar{x}$ que tiene como valor $\bar{F} = F + \Delta(P)$. Como $\Delta(P) = \min_{e \in P}{\{\Delta(e)\}}$ y, por definición $\Delta(e) > 0\ \forall e \in E_R$, se tiene que $\Delta(P) > 0$, así que $\bar{F} > F$. Por lo tanto, $x$ no es un flujo máximo.
+
+    $\impliedby$) Supongamos que no existe camino de aumento en $R(G, x)$. Entonces, sea $S$ el corte que contiene a todos los vértices alcanzables desde $s$ en la red residual (es un corte porque, si contuviera a $t$, habría un camino de aumento). Entonces, si se consideran las aristas $v \rightarrow w \in S\bar{S}$, sabemos que $v \rightarrow w \notin E_R$, así que $x(v \rightarrow w) = u(v \rightarrow w)$. Además, para las aristas $v' \rightarrow w' \in S\bar{S}$, también sabemos que $w' \rightarrow v \notin E_R$, así que $x(v' \rightarrow w') = 0$. Por ende, se tiene:
+    $$F = \sum_{e \in S\bar{S}} x(e) - \sum_{e \in \bar{S}S} x(e) = \sum_{e \in S\bar{S}} u(e) - 0 = u(S)$$
+
+    Como se demostró \hyperref[flujo-certificado-optimalidad]{anteriormente}, si se encuentra un flujo $x$ de valor $F$ y un corte $S$ tal que $F = u(S)$, el flujo es máximo y el corte mínimo.
+
+\end{proof}
+
+Por ende, si se incrementa el flujo a través de caminos de aumento hasta que la red residual no tenga más, se llega a un flujo máximo. El esquema es el siguiente:
+
+\begin{codebox}
+    \Procname{$\proc{Ford-Fulkerson}(N = (V, E, u))$}
+    \li Inicializar flujo inicial $x$ con $x(e)\ \forall e \in E$.
+    \li \While $\exists P$ camino de aumento en $R(N, x)$ \Do
+    \li \For \Each $(v \rightarrow w) \in P$ \Do
+    \li \If $(v \rightarrow w) \in E$ \Then
+    \li $x(v \rightarrow w) \gets x(v \rightarrow w) + \Delta(P)$
+    \li \Else
+    \li $x(w \rightarrow v) \gets x(w \rightarrow v) - \Delta(P)$
+    \End
+    \End
+    \End
+    \li \Return $x$
+\end{codebox}
+
+Ford-Fulkerson se denomina un esquema, y no un algoritmo\footnote{A veces sí se lo llama algoritmo, y en ese caso no se especifica el camino que se elige.}, porque el criterio con el cuál encuentra el camino de aumento $P$ en cada iteración no se especifica. Existen algoritmos que implementan este esquema con una elección particular de camino de aumento, como el de \hyperref[edmonds-karp]{Edmonds-Karp}.
+
+\subsection{Complejidad}
+Para analizar la complejidad del esquema de Ford-Fulkerson, es necesario acotar la cantidad de iteraciones que hace el ciclo exterior. Para ello, nos valemos del siguiente teorema:
+
+\begin{theorem*}
+    Si las capacidades de una red $N = (V, E, u)$ cumplen $u(e) \in \Z$, el flujo máximo de $N$ tiene también valores enteros, y el esquema de \textit{Ford-Fulkerson} puede encontrar siempre un camino de aumento $P$ con $\Delta(P) \in \Z$.
+\end{theorem*}
+\begin{proof}
+    Se puede demostrar haciendo inducción en las iteraciones de F\&F: en el paso $k$-ésimo, el flujo $x_k$ tiene valores enteros, y se puede encontrar un camino de aumento con valor entero.
+
+    \textbf{Caso Base}: En el paso $0$, el flujo $x$ vale $x(e) = 0 \in \Z$ para todas las aristas $e$.
+
+    \textbf{Paso Inductivo}: Asumiendo que en el paso $k - 1$-ésimo vale la propiedad, se tiene que $x_{k - 1}(e) \in \Z\ \forall e \in E$. Sabemos que si hay algún camino de aumento $P$, su valor $\Delta(P)$ se define como:
+    $$\Delta(P) = \min{\{\Delta(e) \mid e \in P\}}$$
+
+    Luego, como $\Delta(e) \in \{u(e) - x_{k - 1}(e), x_{k - 1}(e)\} \subseteq \Z$, se tiene que $\Delta(P) \in \Z$. Esto además implica que $x_k$ tiene valores enteros, porque $x_k$ se define como:
+    $$
+    x_k(v \rightarrow w) =
+    \begin{cases}
+        x_{k - 1}(v \rightarrow w) + \Delta(P) & \si v \rightarrow w \in E \\
+        x_{k - 1}(v \rightarrow w) - \Delta(P) & \si w \rightarrow v \in E \\
+        x_{k - 1}(v \rightarrow w) & \ecc
+    \end{cases}$$
+
+    En todos los casos, los valores son enteros, así que la propiedad vale para el caso $k$.
+
+\end{proof}
+
+A partir de este teorema se puede ver que, cuando las capacidades son enteros, el esquema de F\&F realiza como máximo $F$ iteraciones: en cada paso, se encuentra un camino de aumento $P$ que cumple $\Delta(P) \geq 0 \land \Delta(P) \in \Z \implies \Delta(P) \geq 1$, así que en a lo sumo $F$ pasos se llega a un flujo de valor $F$. Esto implica que la complejidad total del algoritmo es \BigO{|V|F}, porque en cada iteración se realiza una operación constante para cada vértice del camino $P$ (que puede contener a todos los vértices).
+
+Para expresar la complejidad sin saber el flujo máximo, se pueden encontrar cotas superiores para el mismo, como la suma de las capacidades $\sum_{e \in E} u(E)$, o el máximo $\max{\{u(e) \mid e \in E\}}$.
+
+\subsection{Algoritmo de Edmonds-Karp}
+\label{edmonds-karp}
+
+El \textit{algoritmo de Edmonds-Karp} es una versión del de Ford-Fulkerson. En este caso, el camino de aumento es encontrado a través de BFS. Esto permite asegurar una cota de \BigO{|V||E|^2}.
+
+\section{Matching Máximo en Grafo Bipartitos}
+
+\subsection{Definición}
+
+Dado un grafo bipartito $G = (V, E)$ con bipartición $(V_1, V_2)$, un \textit{matching} $M \subseteq E$ es un conjunto de aristas tal que:
+    $$\forall u \rightarrow v \in M,\ (u \in V_1 \land v \in V_2) \lor u \in V_2 \land (v \in V_2)$$
+
+Otra definición equivalente para $M$ sería que cualquier vértice $v \in V$ es incidente a a lo sumo 1 arista de $M$. El problema de matching máximo en grafos bipartitos es:
+
+\begin{problema}
+    Dado grafo bipartito $G = (V, E)$, encontrar el matching $M^*$ de cardinal máximo. Es decir,
+    $$M^* = \arg\max{\{\#M \mid M \text{ es matching en } G\}}$$
+\end{problema}
+
+Este problema se puede resolver reduciéndolo a flujo máximo.
+
+\subsection{Solución}
+
+Para resolver matching máximo en el grafo bipartito $G = (V, E)$, se puede definir la red de flujo $N =(V', E', u)$ de la siguiente forma:
+\begin{itemize}
+    \item $V' = V \cup \{s, t\}$
+    \item $E' = E \cup \{s \rightarrow v \mid v \in V_1\} \cup \{w \rightarrow t \mid w \in V_2\}$
+    \item $u(e) = 1\ \forall e \in E'$
+\end{itemize}
+
+Luego, el flujo máximo de la red pasará por un conjunto de aristas que conforman un matching $M$ de cardinal máximo.
+
+% TODO: Demostrar
+
+\section{Flujo de costo mínimo}
+
+\begin{problema}
+    Dada una red de flujo $N = (V, E, u)$ que tiene además:
+    \begin{itemize}
+        \item Una función de costo unitario (por cada unidad de flujo) en cada arista $c: E \rightarrow \Z_+$.
+        \item Un \textit{imbalance} para cada nodo $b: V \rightarrow \Z_+$.
+    \end{itemize}
+    
+    Encontrar el \textit{flujo de costo mínimo} $x: E \rightarrow \Z_+$, esto es, un flujo que:
+    \begin{itemize}
+        \item Respeta el imbalance de cada nodo $v \in V$:
+            $$b(v) = \sum_{w \in N^+(v)} x(v \rightarrow w) - \sum_{w \in N^-(v)} x(w \rightarrow v)$$
+        \item Respeta las capacidades de las aristas $e \in E$:
+            $$0 \leq x(e) \leq u(e)$$
+        \item Tiene costo $C = \sum_{e \in E} c(e) \cdot x(e)$ es mínimo.
+    \end{itemize}
+\end{problema}
+
+
+
+
+
+% Labels de capítulos futuros
 \label{reducciones}
 
 \label{np-hard}
