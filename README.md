@@ -4,7 +4,7 @@ Este es un resumen para el final de la materia Algoritmos y Estructuras de Datos
 
 ## Contribuir
 
-Si encuentran algún error o quieren agregar algo (hay varios lugares en [resumen-final.tex](./resumen-final.tex) donde dejé comentarios de "TODO"), no duden en mandar una [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests) o abrir un [issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/about-issues).
+Si encuentran algún error o quieren agregar algo (hay varios lugares en [resumen-final.tex](./resumen-final.tex) donde dejamos comentarios de "TODO"), no duden en mandar una [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests) o abrir un [issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/about-issues).
 
 ## Fuentes
 
