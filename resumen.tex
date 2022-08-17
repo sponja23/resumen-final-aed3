@@ -1163,7 +1163,7 @@ Se puede implementar de la siguiente manera:
     \Procname{$\proc{Prim}(G, w)$}
     \li $V_T \gets \{s\}$ (cualquier vértice)
     \li $E_T \gets \emptyset$
-    \For $i \gets 1$ \To $n - 1$ \Do
+    \li \For $i \gets 1$ \To $n - 1$ \Do
     \li $e \gets \arg\min{\{w(e) \mid e = uv \in E,\ u \in V_T,\ v \in V - V_T\}}$
     \li $E_T \gets E_T \cup e$
     \li $V_T \gets V_T \cup v$
@@ -1829,9 +1829,9 @@ El proceso de repesar se basa en el siguiente teorema:
 
     Por ende, si $P'$ es un camino mínimo entre $u$ y $v$ en $G$, se tiene:
     \begin{flalign*}
-        && w(P') & \leq w(P) && \forall P \text{ camino entre $u$ y $v$} \\
-        && w(P')  + h(u) - h(v) & \leq w(P) + h(u) - h(v) && \forall P \text{ camino entre $u$ y $v$} \\
-        && \hat{w}(P') & \leq \hat{w}(P) && \forall P \text{ camino entre $u$ y $v$}
+         &  & w(P')                & \leq w(P)               &  & \forall P \text{ camino entre $u$ y $v$} \\
+         &  & w(P')  + h(u) - h(v) & \leq w(P) + h(u) - h(v) &  & \forall P \text{ camino entre $u$ y $v$} \\
+         &  & \hat{w}(P')          & \leq \hat{w}(P)         &  & \forall P \text{ camino entre $u$ y $v$}
     \end{flalign*}
 
     Entonces, $P'$ sigue siendo camino mínimo en $\hat{G}$.
@@ -1842,10 +1842,10 @@ El proceso de repesar se basa en el siguiente teorema:
 
 Para aprovechar este resultado, hace falta encontrar una función $h: V \longrightarrow \R$ que permita asignar valores no negativos a todos los pesos. El algoritmo de Johnson logra esto agregando un vértice adicional $s$ a $G$, conectado a todos los vértices con aristas de peso $0$, y calculando las distancias mínimas de $s$ a los demás (a través del algoritmo de Bellman-Ford, acá es donde el procedimiento falla si hay un ciclo negativo). Luego, toma $h(v) = \delta(s, v)$, que resulta en pesos no negativos ya que:
 \begin{flalign*}
-    && \delta(s, v) & \leq \delta(s, u) + w(u \rightarrow v) && \text{(Desigualdad triangular)} \\
-    && h(v) & \leq h(u) + w(u \rightarrow v) && \\
-    && 0 & \leq w(u \rightarrow v) + h(u) - h(v) && \\
-    && 0 & \leq \hat{w}(u \rightarrow v) &&
+     &  & \delta(s, v) & \leq \delta(s, u) + w(u \rightarrow v) &  & \text{(Desigualdad triangular)} \\
+     &  & h(v)         & \leq h(u) + w(u \rightarrow v)         &  &                                 \\
+     &  & 0            & \leq w(u \rightarrow v) + h(u) - h(v)  &  &                                 \\
+     &  & 0            & \leq \hat{w}(u \rightarrow v)          &  &
 \end{flalign*}
 
 Luego, se puede correr Dijkstra en cada vértice para obtener las distancias de todos a todos. El código es el siguiente:
@@ -1880,14 +1880,14 @@ Una \textit{red de flujo} es un digrafo $N = (V, E)$ junto con una función de \
 \begin{itemize}
     \item $0 \leq x(v_i \rightarrow v_j) \leq u(v_i \rightarrow v_j)$ (Respeta las capacidades).
     \item $\forall v_i \in V - \{s, t\},$
-        \begin{flalign*}
-            && \sum_{u \in N^+(v)} x(u \rightarrow v) = \sum_{u \in N^-(v)} x(v \rightarrow u) && \textit{(Conservación)}
-        \end{flalign*}
+          \begin{flalign*}
+               &  & \sum_{u \in N^+(v)} x(u \rightarrow v) = \sum_{u \in N^-(v)} x(v \rightarrow u) &  & \textit{(Conservación)}
+          \end{flalign*}
 \end{itemize}
 
 
 El \textit{valor del flujo} $x$ es la cantidad neta que sale del vértice $s$, es decir:
-    $$F = \sum_{u \in N^+(s)} x(u \rightarrow s) - \sum_{u \in N^-(s)} x(s \rightarrow u)$$
+$$F = \sum_{u \in N^+(s)} x(u \rightarrow s) - \sum_{u \in N^-(s)} x(s \rightarrow u)$$
 
 Entonces, se puede definir el problema de flujo máximo:
 
@@ -1899,7 +1899,7 @@ Entonces, se puede definir el problema de flujo máximo:
     \begin{itemize}
         \item $0 \leq x(e) \leq u(e)\ \forall e \in E$
         \item $\forall v_i \in V - \{s, t\},$
-                $$\sum_{u \in N^+(v)} x(u \rightarrow v) = \sum_{u \in N^-(v)} x(v \rightarrow u)$$
+              $$\sum_{u \in N^+(v)} x(u \rightarrow v) = \sum_{u \in N^-(v)} x(v \rightarrow u)$$
     \end{itemize}
 \end{problema}
 
@@ -1908,7 +1908,7 @@ Las unidades del flujo se pueden considerar ``paquetes'' que viajan del origen $
 \subsection{Corte}
 
 Un \textit{corte} en una red de flujo $N = (V, E, u)$ es un subconjunto $S \subseteq V$ tal que $s \in S$ y $t \notin S$. Por otro lado, dado un par de subconjuntos $S, T \subseteq V$, se define:
-    $$ST = \{u \rightarrow v \mid u \rightarrow v \in E, u \in S, v \in T\}$$
+$$ST = \{u \rightarrow v \mid u \rightarrow v \in E, u \in S, v \in T\}$$
 
 \begin{theorem*}
     \leavevmode
@@ -1941,7 +1941,7 @@ Luego, se puede definir otro problema de flujo, el de corte mínimo:
 \end{problema}
 
 A partir del último teorema, se puede ver que:
-    $$F = \sum_{e \in S\bar{S}} \underbrace{x(e)}_{\leq u(e)} - \sum_{e \in \bar{S}S} \underbrace{x(e)}_{\geq 0} \leq u(S)$$
+$$F = \sum_{e \in S\bar{S}} \underbrace{x(e)}_{\leq u(e)} - \sum_{e \in \bar{S}S} \underbrace{x(e)}_{\geq 0} \leq u(S)$$
 
 Esto vale para cualquier valor de flujo $F$, y cualquier corte $S$. Esto es intuitivo: como las unidades de flujos empiezan en el origen $s$, todas deben pasar por alguna arista de $S\bar{S}$ para llegar al destino $t$.
 
@@ -1949,7 +1949,7 @@ Esto vale para cualquier valor de flujo $F$, y cualquier corte $S$. Esto es intu
 \label{flujo-certificado-optimalidad}
 
 Un \textit{certificado de optimalidad} para una instancia de un problema de optimización es un valor que permite verificar que la solución una solución dada es efectivamente óptima (y, generalmente, hacerlo en menor tiempo que el que toma resolver el problema). El flujo máximo cuenta con uno: si se encuentra un flujo factible $x^*$ y un corte $S^*$ tales que $F^* = u(S)$, se tiene que, para cualquier valor de flujo $F$,
-    $$F \leq u(S) = F^*$$
+$$F \leq u(S) = F^*$$
 
 Así que $x^*$ es un flujo máximo.
 
@@ -1963,11 +1963,11 @@ Dada una red de flujo $N = (V, E, u)$ y un flujo factible $x$, la \textit{red re
 
 Además, se puede definir la \textit{capacidad residual} de una arista de $R(N, x)$ de la siguiente manera:
 $$
-\Delta(v \rightarrow w) = 
-\begin{cases}
-    u(v \rightarrow w) - x(v \rightarrow w) & \si v \rightarrow w \in E \\
-    x(v \rightarrow w) & \ecc
-\end{cases}
+    \Delta(v \rightarrow w) =
+    \begin{cases}
+        u(v \rightarrow w) - x(v \rightarrow w) & \si v \rightarrow w \in E \\
+        x(v \rightarrow w)                      & \ecc
+    \end{cases}
 $$
 
 Luego, un \textit{camino de aumento} es un camino orientado en el grafo $R(N, x)$ que va de $s$ a $t$. Para un camino $P$ se define $\Delta(P) = \min_{e \in P}{\{\Delta(e)\}}$.
@@ -1975,15 +1975,15 @@ Luego, un \textit{camino de aumento} es un camino orientado en el grafo $R(N, x)
 \label{teorema-camino-aumento}
 \begin{theorem*}
     Dada una red de flujo $N = (V, E, u)$ junto con un flujo factible $x$, si $P$ es un camino entre $s$ y $t$ en la red residual $R(N, x)$, se puede definir un nuevo flujo $\bar{x}$:
-        $$
+    $$
         \bar{x}(v \rightarrow w) =
         \begin{cases}
             x(v \rightarrow w) + \Delta(P) & \si v \rightarrow w \in P \\
             x(w \rightarrow v) - \Delta(P) & \si w \rightarrow v \in P \\
-            x(v \rightarrow w) & \ecc
+            x(v \rightarrow w)             & \ecc
         \end{cases}
-        $$
-    
+    $$
+
     Luego, $\bar{x}$ es un flujo factible, y tiene un valor $\bar{F} = F + \Delta(P)$.
 \end{theorem*}
 \begin{proof}
@@ -1993,36 +1993,36 @@ Luego, un \textit{camino de aumento} es un camino orientado en el grafo $R(N, x)
     \begin{itemize}
         \item \textbf{Respeta las capacidades}: Solo hace falta verificar las capacidades de las aristas de $P$, ya que el flujo que pasa por las demás no se modifica (y $\bar{x}$ es un flujo factible). Entonces, veamos que pasa para las aristas $e \in P$.
 
-        Si $e \in E$, entonces $x(e) < u(e)$ (ya que la arista también está en la red residual). Además, por la definición de $\Delta(P)$, se tiene que:
-        $$\Delta(P) \leq \Delta(e) = u(e) - x(e)$$
+              Si $e \in E$, entonces $x(e) < u(e)$ (ya que la arista también está en la red residual). Además, por la definición de $\Delta(P)$, se tiene que:
+              $$\Delta(P) \leq \Delta(e) = u(e) - x(e)$$
 
-        Esto implica que el nuevo flujo de la arista respeta la capacidad:
-        $$\bar{x}(e) = x(e) + \Delta(P) \leq x(e) + u(e) - x(e) = u(e)$$
+              Esto implica que el nuevo flujo de la arista respeta la capacidad:
+              $$\bar{x}(e) = x(e) + \Delta(P) \leq x(e) + u(e) - x(e) = u(e)$$
 
-        Por otro lado, si $e^T \in E$, eso implica que $x(e^T) > 0$ (ya que la arista inversa está en la red residual). En cuanto a la capacidad residual de la arista,
-        $$\Delta(P) \leq \Delta(e) = x(e^T)$$
+              Por otro lado, si $e^T \in E$, eso implica que $x(e^T) > 0$ (ya que la arista inversa está en la red residual). En cuanto a la capacidad residual de la arista,
+              $$\Delta(P) \leq \Delta(e) = x(e^T)$$
 
-        Entonces, el nuevo flujo es no negativo:
-        $$\bar{x}(e^T) = x(e^T) - \Delta(P) \geq x(e^T) - x(e^T) = 0$$
+              Entonces, el nuevo flujo es no negativo:
+              $$\bar{x}(e^T) = x(e^T) - \Delta(P) \geq x(e^T) - x(e^T) = 0$$
 
         \item \textbf{Respeta la conservación}: De nuevo, para vértices por los que no pasa el camino, el flujo no cambia, así que la conservación se mantiene.
-        
-        Para cada vértice $v \in P - \{s, t\}$, sean $e_1 = a \rightarrow v$ y $e_2 = v \rightarrow b$ las dos\footnote{Son dos aristas porque, por ser camino, no se pasa dos veces por $v$.} aristas de $P$ que contienen a $v$. Observemos que el flujo neto que pasa por $v$ es:
-            $$\sum_{e \in N^+(v)} \bar{x}(e) - \sum_{e \in N^-(v)} \bar{x}(e)$$
 
-        Para los valores de flujo de $e_1, e_2$, existen 4 posibilidades:
-        \begin{enumerate}
-            \item $e_1, e_2 \in E$: el flujo neto es:
-                \begin{align*}
-                    \sum_{e \in N^+(v)} \bar{x}(e) - \sum_{e \in N^-(v)} \bar{x}(e) = \sum_{e \in N^+(v) - \{e_1\}} x(e) - \sum_{e \in N^-(v) - \{e_2\}} x(e) + \bar{x}(e_1) - \bar{x}(e_2) \\
-                    = \sum_{e \in N^+(v) - \{e_1\}} x(e) - \sum_{e \in N^-(v) - \{e_2\}} x(e) + x(e_1) + \Delta(P) - x(e_2) - \Delta(P) \\
-                    = \sum_{e \in N^+(v)} x(e) - \sum_{e \in N^-(v)} x(e) = 0
-                \end{align*}
-            % TODO: los otros casos
-            \item $e_1^T, e_2^T \in E$:
-            \item $e_1, e_2^T \in E$:
-            \item $e_1^T, e_2 \in E$:
-        \end{enumerate}
+              Para cada vértice $v \in P - \{s, t\}$, sean $e_1 = a \rightarrow v$ y $e_2 = v \rightarrow b$ las dos\footnote{Son dos aristas porque, por ser camino, no se pasa dos veces por $v$.} aristas de $P$ que contienen a $v$. Observemos que el flujo neto que pasa por $v$ es:
+              $$\sum_{e \in N^+(v)} \bar{x}(e) - \sum_{e \in N^-(v)} \bar{x}(e)$$
+
+              Para los valores de flujo de $e_1, e_2$, existen 4 posibilidades:
+              \begin{enumerate}
+                  \item $e_1, e_2 \in E$: el flujo neto es:
+                        \begin{align*}
+                            \sum_{e \in N^+(v)} \bar{x}(e) - \sum_{e \in N^-(v)} \bar{x}(e) = \sum_{e \in N^+(v) - \{e_1\}} x(e) - \sum_{e \in N^-(v) - \{e_2\}} x(e) + \bar{x}(e_1) - \bar{x}(e_2) \\
+                            = \sum_{e \in N^+(v) - \{e_1\}} x(e) - \sum_{e \in N^-(v) - \{e_2\}} x(e) + x(e_1) + \Delta(P) - x(e_2) - \Delta(P)                                                     \\
+                            = \sum_{e \in N^+(v)} x(e) - \sum_{e \in N^-(v)} x(e) = 0
+                        \end{align*}
+                        % TODO: los otros casos
+                  \item $e_1^T, e_2^T \in E$:
+                  \item $e_1, e_2^T \in E$:
+                  \item $e_1^T, e_2 \in E$:
+              \end{enumerate}
     \end{itemize}
 
     Por otro lado, para calcular el valor del nuevo flujo, vamos a asumir que el vértice $s$ no tiene aristas entrantes ($d^-(s) = 0$). Esto es razonable: si hay flujo entrante a $s$, se forma un ciclo que se puede ``cancelar'', así que no es necesario modelarlo. Bajo esta suposición, el valor del flujo $\bar{x}$ es:
@@ -2052,17 +2052,17 @@ Por ende, si se incrementa el flujo a través de caminos de aumento hasta que la
 
 \begin{codebox}
     \Procname{$\proc{Ford-Fulkerson}(N = (V, E, u))$}
-    \li Inicializar flujo inicial $x$ con $x(e)\ \forall e \in E$.
-    \li \While $\exists P$ camino de aumento en $R(N, x)$ \Do
-    \li \For \Each $(v \rightarrow w) \in P$ \Do
-    \li \If $(v \rightarrow w) \in E$ \Then
-    \li $x(v \rightarrow w) \gets x(v \rightarrow w) + \Delta(P)$
-    \li \Else
-    \li $x(w \rightarrow v) \gets x(w \rightarrow v) - \Delta(P)$
-    \End
-    \End
-    \End
-    \li \Return $x$
+        \li Inicializar flujo inicial $x$ con $x(e)\ \forall e \in E$.
+        \li \While $\exists P$ camino de aumento en $R(N, x)$ \Do
+        \li \For \Each $(v \rightarrow w) \in P$ \Do
+        \li \If $(v \rightarrow w) \in E$ \Then
+        \li $x(v \rightarrow w) \gets x(v \rightarrow w) + \Delta(P)$
+        \li \Else
+        \li $x(w \rightarrow v) \gets x(w \rightarrow v) - \Delta(P)$
+        \End
+        \End
+        \End
+        \li \Return $x$
 \end{codebox}
 
 Ford-Fulkerson se denomina un esquema, y no un algoritmo\footnote{A veces sí se lo llama algoritmo, y en ese caso no se especifica el camino que se elige.}, porque el criterio con el cuál encuentra el camino de aumento $P$ en cada iteración no se especifica. Existen algoritmos que implementan este esquema con una elección particular de camino de aumento, como el de \hyperref[edmonds-karp]{Edmonds-Karp}.
@@ -2083,12 +2083,12 @@ Para analizar la complejidad del esquema de Ford-Fulkerson, es necesario acotar 
 
     Luego, como $\Delta(e) \in \{u(e) - x_{k - 1}(e), x_{k - 1}(e)\} \subseteq \Z$, se tiene que $\Delta(P) \in \Z$. Esto además implica que $x_k$ tiene valores enteros, porque $x_k$ se define como:
     $$
-    x_k(v \rightarrow w) =
-    \begin{cases}
-        x_{k - 1}(v \rightarrow w) + \Delta(P) & \si v \rightarrow w \in P \\
-        x_{k - 1}(w \rightarrow v) - \Delta(P) & \si w \rightarrow v \in P \\
-        x_{k - 1}(v \rightarrow w) & \ecc
-    \end{cases}$$
+        x_k(v \rightarrow w) =
+        \begin{cases}
+            x_{k - 1}(v \rightarrow w) + \Delta(P) & \si v \rightarrow w \in P \\
+            x_{k - 1}(w \rightarrow v) - \Delta(P) & \si w \rightarrow v \in P \\
+            x_{k - 1}(v \rightarrow w)             & \ecc
+        \end{cases}$$
 
     En todos los casos, los valores son enteros, así que la propiedad vale para el caso $k$.
 
@@ -2108,7 +2108,7 @@ El \textit{algoritmo de Edmonds-Karp} es una versión del de Ford-Fulkerson. En 
 \subsection{Definición}
 
 Dado un grafo bipartito $G = (V, E)$ con bipartición $(V_1, V_2)$, un \textit{matching} $M \subseteq E$ es un conjunto de aristas tal que:
-    $$\forall u \rightarrow v \in M,\ (u \in V_1 \land v \in V_2) \lor u \in V_2 \land (v \in V_2)$$
+$$\forall u \rightarrow v \in M,\ (u \in V_1 \land v \in V_2) \lor u \in V_2 \land (v \in V_2)$$
 
 Otra definición equivalente para $M$ sería que cualquier vértice $v \in V$ es incidente a a lo sumo 1 arista de $M$. El problema de matching máximo en grafos bipartitos es:
 
@@ -2140,13 +2140,13 @@ Luego, el flujo máximo de la red pasará por un conjunto de aristas que conform
         \item Una función de costo unitario (por cada unidad de flujo) en cada arista $c: E \rightarrow \Z_+$.
         \item Un \textit{imbalance} para cada nodo $b: V \rightarrow \Z_+$.
     \end{itemize}
-    
+
     Encontrar el \textit{flujo de costo mínimo} $x: E \rightarrow \Z_+$, esto es, un flujo que:
     \begin{itemize}
         \item Respeta el imbalance de cada nodo $v \in V$:
-            $$b(v) = \sum_{w \in N^+(v)} x(v \rightarrow w) - \sum_{w \in N^-(v)} x(w \rightarrow v)$$
+              $$b(v) = \sum_{w \in N^+(v)} x(v \rightarrow w) - \sum_{w \in N^-(v)} x(w \rightarrow v)$$
         \item Respeta las capacidades de las aristas $e \in E$:
-            $$0 \leq x(e) \leq u(e)$$
+              $$0 \leq x(e) \leq u(e)$$
         \item Tiene costo $T = \sum_{e \in E} c(e) \cdot x(e)$ es mínimo.
     \end{itemize}
 \end{problema}
@@ -2166,22 +2166,22 @@ Cuando los imbalances son todos nulos, el flujo se denomina una \textit{circulac
 
     Sabiendo que $v$ forma parte de algún ciclo $C$ compuesto por aristas con flujo no nulo, se puede definir $\Delta(C) = \min{\{x(e) \mid e \in C\}}$. Luego, podemos tomar un flujo alternativo $\bar{x}$ definido como
     $$
-    \bar{x}(e) =
-    \begin{cases}
-        x(e) - \Delta(C) & \si e \in C \\
-        x(e) & \ecc
-    \end{cases}
+        \bar{x}(e) =
+        \begin{cases}
+            x(e) - \Delta(C) & \si e \in C \\
+            x(e)             & \ecc
+        \end{cases}
     $$
 
     El flujo que pasa por los nodos fuera de $C$ no se ve afectado, mientras que los que están en el ciclo mantienen la conservación, ya que cada $\Delta(C)$ unidades que pierden por una arista de entrada son compensadas por una pérdida equivalente en una arista de salida. Esto significa que $\bar{x}$ es una circulación válida, y además sabemos que el flujo que pasa por las aristas de $C$ es estrictamente menor.
 
     El proceso anterior puede repetirse hasta que no queden aristas con flujo no nulo, en cuyo caso la circulación es nula. En cada paso $i$, se obtuvo una circulación nueva restando un ciclo $C_i$, que se puede expresar como circulación $x_i$ donde:
     $$
-    x_i =
-    \begin{cases}
-        \Delta(C_i) & \si e \in C_i \\
-        0           & \ecc
-    \end{cases}
+        x_i =
+        \begin{cases}
+            \Delta(C_i) & \si e \in C_i \\
+            0           & \ecc
+        \end{cases}
     $$
 
     Así que $x$ puede expresarse como la sumatoria:
@@ -2199,20 +2199,20 @@ Análogamente al caso de flujo máximo, se puede definir una \textit{red residua
 
 Cada arista de $E_R$ cuenta con una \textit{capacidad residual}:
 $$
-r(v \rightarrow w) =
-\begin{cases}
-    u(v \rightarrow w) - x(v \rightarrow w) & \si v \rightarrow w \in E \\
-    x(w \rightarrow v)                      & \si w \rightarrow w \in E
-\end{cases}
+    r(v \rightarrow w) =
+    \begin{cases}
+        u(v \rightarrow w) - x(v \rightarrow w) & \si v \rightarrow w \in E \\
+        x(w \rightarrow v)                      & \si w \rightarrow w \in E
+    \end{cases}
 $$
 
 Y además tienen los costos dados por:
 $$
-c_R(v \rightarrow w) =
-\begin{cases}
-    c(v \rightarrow w) & \si v \rightarrow w \in E \\
-    -c(v \rightarrow w) & \si w \rightarrow v \in E
-\end{cases}
+    c_R(v \rightarrow w) =
+    \begin{cases}
+        c(v \rightarrow w)  & \si v \rightarrow w \in E \\
+        -c(v \rightarrow w) & \si w \rightarrow v \in E
+    \end{cases}
 $$
 
 Esta red residual nos permite establecer una \textit{condición de optimalidad} análoga a la de ``no hay camino de aumento'' en flujo máximo.
@@ -2225,29 +2225,29 @@ Esta red residual nos permite establecer una \textit{condición de optimalidad} 
 
     $\implies$) Se demuestra por el contrarrecíproco: supongamos que $R(N, x)$ cuenta con un ciclo de costo negativo $C$. Definamos entonces $r(C) = \min{\{r(e) \mid e \in C\}}$, y a partir de eso un nuevo flujo $\bar{x}$ de la siguiente forma:
     $$
-    \bar{x}(v \rightarrow w) =
-    \begin{cases}
-        x(v \rightarrow w) + r(C) & \si v \rightarrow w \in C \\
-        x(w \rightarrow v) - r(C) & \si w \rightarrow v \in C \\
-        x(v \rightarrow w) & \ecc
-    \end{cases}
+        \bar{x}(v \rightarrow w) =
+        \begin{cases}
+            x(v \rightarrow w) + r(C) & \si v \rightarrow w \in C \\
+            x(w \rightarrow v) - r(C) & \si w \rightarrow v \in C \\
+            x(v \rightarrow w)        & \ecc
+        \end{cases}
     $$
-    
+
     Como se demostró para un caso análogo en la \hyperref[teorema-camino-aumento]{sección anterior}, este flujo es factible. Además, si se calcula el costo total de $\bar{x}$, se tiene:
-        \begin{align*}
-            \bar{T} = \sum_{e \in E} c(e) \cdot \bar{x}(e) & = \sum_{e \notin C, e^T \notin C} c(e) x(e) + \sum_{e \in C} c(e) (x(e) + r(C)) + \sum_{e^T \in C} c(e) (x(e) - r(C)) \\ 
-            & = \sum_{e \in E} c(e) \cdot x(e) + r(C) \left(\sum_{e \in C} c(e) - \sum_{e^T \in C} c(e)\right) \\
-            & = T + r(C) \left(\sum_{e \in C} c(e) - \sum_{e^T \in C} c(e)\right)
-        \end{align*}
+    \begin{align*}
+        \bar{T} = \sum_{e \in E} c(e) \cdot \bar{x}(e) & = \sum_{e \notin C, e^T \notin C} c(e) x(e) + \sum_{e \in C} c(e) (x(e) + r(C)) + \sum_{e^T \in C} c(e) (x(e) - r(C)) \\
+                                                       & = \sum_{e \in E} c(e) \cdot x(e) + r(C) \left(\sum_{e \in C} c(e) - \sum_{e^T \in C} c(e)\right)                      \\
+                                                       & = T + r(C) \left(\sum_{e \in C} c(e) - \sum_{e^T \in C} c(e)\right)
+    \end{align*}
 
     Sabemos que $C$ es un ciclo negativo, con un costo definido por:
     \begin{align*}
         c_R(C) & = \sum_{e \in C} c_R(e) = \sum_{e \in C} c(e) + \sum_{e^T \in C} -c(e) \\
-            & = \sum_{e \in C} c(e) - \sum_{e^T \in C} c(e) < 0
+               & = \sum_{e \in C} c(e) - \sum_{e^T \in C} c(e) < 0
     \end{align*}
 
     Por ende, el costo de $\bar{x}$ es:
-        $$\bar{T} = T + \underbrace{r(C)}_{\geq 0} \underbrace{c_R(C)}_{< 0} < T$$
+    $$\bar{T} = T + \underbrace{r(C)}_{\geq 0} \underbrace{c_R(C)}_{< 0} < T$$
 
     $\impliedby$) % TODO
 
@@ -2283,14 +2283,14 @@ Para encontrar un flujo inicial factible, se puede aplicar flujo máximo: se def
     \item $V' = V \cup \{s, t\}$
     \item $E' = E \cup \{s \rightarrow v \mid v \in V, b(v) > 0\} \cup \{w \rightarrow t \mid w \in V, b(w) < 0\}$
     \item Las capacidades $u'$ están dadas por:
-        $$
-        u'(v \rightarrow w) =
-        \begin{cases}
-            u(v \rightarrow w) & \si v \rightarrow w \in E \\
-            b(w) & \si v = s \\
-            -b(v) & \si w = t
-        \end{cases}
-        $$
+          $$
+              u'(v \rightarrow w) =
+              \begin{cases}
+                  u(v \rightarrow w) & \si v \rightarrow w \in E \\
+                  b(w)               & \si v = s                 \\
+                  -b(v)              & \si w = t
+              \end{cases}
+          $$
 \end{itemize}
 
 Entonces, un flujo máximo debe saturar todas las capacidades de los arcos de la fuente y el destino. En caso contrario, un flujo factible no es posible en la red inicial. % TODO: Demostrar
@@ -2319,9 +2319,9 @@ El flujo de costo mínimo se puede utilizar para resolver otros problemas. Prime
     Dada una red de flujo pesada $N = (V, E, u, c)$, un par de vértices $s$ y $t$ y un valor $d$, encontrar un flujo $x$ tal que:
     \begin{itemize}
         \item Tenga valor neto $d$:
-            $$\sum_{v \in N^+(s)} x(s \rightarrow v) - \sum_{v \in N^-(s)} x(v \rightarrow s) = d$$
+              $$\sum_{v \in N^+(s)} x(s \rightarrow v) - \sum_{v \in N^-(s)} x(v \rightarrow s) = d$$
         \item Respeta las capacidades de las aristas $e \in E$:
-            $$0 \leq x(e) \leq u(e)$$
+              $$0 \leq x(e) \leq u(e)$$
         \item Tiene costo $T = \sum_{e \in E} c(e) \cdot x(e)$ es mínimo.
     \end{itemize}
 \end{problema}
@@ -2360,16 +2360,16 @@ Es habitual agregar la restricción de que $x \geq 0$, aunque eso se puede incor
 Esta formulación es sumamente general, ya que permite:
 \begin{itemize}
     \item Minimizar en vez de maximizar, si se toma $-c$ en lugar de $c$, se tiene que:
-        $$-c^T x^* \geq -c^T x\ \forall x \iff c^T x^* \leq c^T x\ \forall x$$
+          $$-c^T x^* \geq -c^T x\ \forall x \iff c^T x^* \leq c^T x\ \forall x$$
     \item Agregar cotas inferiores, si se invierten los coeficientes de la fila $i$ de $A$ y $b_i$, se obtiene:
-        $$-a_{i1} x_1 - a_{i2} x_2 - \cdots - a_{in} x_n \leq -b_i \iff a_{i1} x_1 + a_{i2} x_2 + \cdots + a_{in} x_n \geq b_i$$
+          $$-a_{i1} x_1 - a_{i2} x_2 - \cdots - a_{in} x_n \leq -b_i \iff a_{i1} x_1 + a_{i2} x_2 + \cdots + a_{in} x_n \geq b_i$$
     \item Agregar igualdades, a través de las restricciones:
-    \begin{equation*}
-        \left.\begin{aligned}
-            a_{i1} x_1 + a_{i2} x_2 + \cdots + a_{in} x_n & \leq b_i \\
-            a_{i1} x_1 + a_{i2} x_2 + \cdots + a_{in} x_n & \geq b_i
-        \end{aligned}\right\} \iff a_{i1} x_1 + a_{i2} x_2 + \cdots + a_{in} x_n = b_i
-    \end{equation*}
+          \begin{equation*}
+              \left.\begin{aligned}
+                  a_{i1} x_1 + a_{i2} x_2 + \cdots + a_{in} x_n & \leq b_i \\
+                  a_{i1} x_1 + a_{i2} x_2 + \cdots + a_{in} x_n & \geq b_i
+              \end{aligned}\right\} \iff a_{i1} x_1 + a_{i2} x_2 + \cdots + a_{in} x_n = b_i
+          \end{equation*}
 \end{itemize}
 
 Para una instancia de programación linear (también llamada un \textit{programa lineal}), una \textit{solución factible} es un vector $x$ que respeta $Ax \leq b$ pero no necesariamente maximiza la función objetivo $c^T x$. En base a esto, se puede definir una \textit{región factible}: la sección del espacio vectorial $\R^n$ que contiene a todas las soluciones factibles.
@@ -2396,9 +2396,9 @@ Las restricciones de flujo de costo mínimo se dan en formato de programa lineal
 \begin{gather*}
     \min{\sum_{vw \in E} c_{vw} x_{vw}} \\
     \begin{flalign*}
-        && \sum_{w \in N^+(v)} x_{vw} - \sum_{w \in N^-(v)} x_{vw} & = b_v && \forall v \in V \\
-        && x_{vw} & \geq l_{vw} && \forall vw \in E \\
-        && x_{vw} & \leq u_{vw} && \forall vw \in E
+         &  & \sum_{w \in N^+(v)} x_{vw} - \sum_{w \in N^-(v)} x_{vw} & = b_v       &  & \forall v \in V  \\
+         &  & x_{vw}                                                  & \geq l_{vw} &  & \forall vw \in E \\
+         &  & x_{vw}                                                  & \leq u_{vw} &  & \forall vw \in E
     \end{flalign*}
 \end{gather*}
 
@@ -2408,9 +2408,9 @@ Similarmente, se puede reducir el problema de flujo máximo a programación line
 \begin{gather*}
     \max{\sum_{v \in N^+(s)} x_{sv}} \\
     \begin{flalign*}
-        && \sum_{w \in N^+(v)} x_{vw} - \sum_{w \in N^-(v)} x_{vw} & = 0 && \forall v \in V - \{s, t\} \\
-        && x_{vw} & \geq 0 && \forall vw \in E \\
-        && x_{vw} & \leq u_{vw} && \forall vw \in E
+         &  & \sum_{w \in N^+(v)} x_{vw} - \sum_{w \in N^-(v)} x_{vw} & = 0         &  & \forall v \in V - \{s, t\} \\
+         &  & x_{vw}                                                  & \geq 0      &  & \forall vw \in E           \\
+         &  & x_{vw}                                                  & \leq u_{vw} &  & \forall vw \in E
     \end{flalign*}
 \end{gather*}
 
@@ -2420,8 +2420,8 @@ Para un grafo pesado $V = (V, E, w)$ y un par de vértices $s, t \in V$, encontr
 \begin{gather*}
     \max{\sum_{uv \in E} x_{uv} w_{uv}} \\
     \begin{flalign*}
-        && \sum_{w \in N^-(t)} x_{vw} & = 1 && 
-        && \sum_{w \in N^+(v)} x_{vw} - \sum_{w \in N^-(v)} x_{vw} & = 0 && \forall v \in V - \{s, t\} \\
+         &  & \sum_{w \in N^-(t)} x_{vw}                              & = 1 &  &
+         &  & \sum_{w \in N^+(v)} x_{vw} - \sum_{w \in N^-(v)} x_{vw} & = 0 &  & \forall v \in V - \{s, t\} \\
     \end{flalign*}
 \end{gather*}
 
@@ -2433,9 +2433,9 @@ El problema de encontrar un AGM para un grafo pesado $G = (V, E, w)$ se puede ex
 \begin{gather*}
     \max{\sum_{uv \in E} x_{uv} w_{uv}} \\
     \begin{flalign*}
-        && \sum_{uv \in E(S)} x_{vw} & \leq |S| - 1 && \forall S \subseteq V \\ 
-        && \sum_{uv \in E} x_{vw} & = n - 1 && \forall v \in V - \{s, t\} \\
-        && x_{vw} & \geq 0 && \forall vw \in E
+         &  & \sum_{uv \in E(S)} x_{vw} & \leq |S| - 1 &  & \forall S \subseteq V      \\
+         &  & \sum_{uv \in E} x_{vw}    & = n - 1      &  & \forall v \in V - \{s, t\} \\
+         &  & x_{vw}                    & \geq 0       &  & \forall vw \in E
     \end{flalign*}
 \end{gather*}
 
@@ -2452,10 +2452,10 @@ La teoría de clases de complejidad se estudia más en el \hyperref[capitulo-np-
 Para un problema de optimización que implica minimizar un valor, el \textit{problema dual} es uno que busca maximizarlo, y cuya solución es al menos tan grande como cualquier solución factible del primer problema (y viceversa para los problemas de maximización). Esto implica que si se encuentra una solución en la que coinciden, esta es mínima para el problema original.
 
 Para la programación lineal, el problema dual de cualquier instancia es otro programa lineal. Si la instancia es:
-    $$\max{\{c^T x \mid x \in \R^n, Ax \leq b\}}$$
+$$\max{\{c^T x \mid x \in \R^n, Ax \leq b\}}$$
 
 El programa lineal dual es:
-    $$\min{\{y^T b \mid y \in \R^m, y^T A \geq c\}}$$
+$$\min{\{y^T b \mid y \in \R^m, y^T A \geq c\}}$$
 
 \begin{theorem*}
     (Teorema de Dualidad Fuerte) Si un problema tiene una solución óptima, entonces el problema dual también la tiene, y sus valores coinciden.
@@ -2480,7 +2480,7 @@ Tomemos el ejemplo del problema de viajante de comercio:
 
 \begin{problema}
     Dado un grafo pesado $G = (V, E, w)$, encontrar un \textit{circuito hamiltoniano} de peso mínimo, es decir, un circuito simple $C^*$ que pase por todos los vértices y minimice su peso total:
-        $$C^* = \arg\min\left\{\sum_{e \in C} w(e) \mid C \text{ es circuito hamiltoniano en $G$}\right\}$$
+    $$C^* = \arg\min\left\{\sum_{e \in C} w(e) \mid C \text{ es circuito hamiltoniano en $G$}\right\}$$
 \end{problema}
 
 Para este problema, las versiones serían:
@@ -2540,7 +2540,7 @@ Las MTDs son \textit{determinísticas}: para todo par $(q, s) \in Q \times \Gamm
 La máquina \textit{resuelve} el problema $\Pi$ si para toda instancia $I \in I_{\Pi}$ esta alcanza un estado final y es el correcto.
 
 La \textit{complejidad} de una MTD está dada por la cantidad de movimientos de la cabeza que se realizan entre el estado inicial y el final, en función del tamaño de entrada:
-    $$T_M(n) = \max\{m \mid M \text{ realiza $m$ movimientos para la entrada $I \in I_{@P}, |I| = n$}\}$$
+$$T_M(n) = \max\{m \mid M \text{ realiza $m$ movimientos para la entrada $I \in I_{@P}, |I| = n$}\}$$
 
 Una MTD $M$ es \textit{polinomial} para $\Pi$ cuando $T_M(n) \in \BigO{n^k}$ para algún $k$.
 
@@ -2559,7 +2559,7 @@ Una MTND resuelve el problema de decisión $\Pi$ cuando existe una secuencia de 
 Una definición equivalente sería que para toda instancia de $Y_{\Pi}$ existe \textbf{al menos una} rama de ejecución que termina en $q_{\text{sí}}$, mientras que para toda instancia de $I_{\Pi} - Y_{\Pi}$, ninguna lo hace.
 
 Por otro lado, la complejidad temporal deuna MTND $M$ se define como el máximo número de pasos que toma la rama de ejecución más corta en llegar a $q_{\text{sí}}$ para una instancia de $Y_{\Pi}$ en función de su tamaño:
-    $$T_M(n) = \max\{m \mid \text{La rama más corta de $M$ termina en $m$ movimientos para $x \in Y_{\Pi}, |x| = n$}\}$$
+$$T_M(n) = \max\{m \mid \text{La rama más corta de $M$ termina en $m$ movimientos para $x \in Y_{\Pi}, |x| = n$}\}$$
 
 Una MTND $M$ es polinomial para $\Pi$ cuando $T_M(n) \in \BigO{n^k}$ para algún $k$.
 
@@ -2586,13 +2586,13 @@ El problema abierto más famoso en la ciencia de la computación es el de P vs. 
 \label{reducciones}
 
 Una \textit{transformación} o \textit{reducción polinomial} de un problema de decisión $\Pi'$ a otro $\Pi$ es una función $f: I_{\Pi'} \longrightarrow I_{\Pi}$ que puede ser computada en tiempo polinomial y cumple que:
-    $$I' \in Y_{\Pi'} \iff f(I') \in Y_{\Pi} \forall I' \in I_{\Pi'}$$
+$$I' \in Y_{\Pi'} \iff f(I') \in Y_{\Pi} \forall I' \in I_{\Pi'}$$
 
 Es decir, una instancia de $\Pi'$ tiene respuesta sí si y solo si la instancia correspondiente $f(I')$ tiene respuesta sí.
 
 Se dice que un problema de decisión $\Pi'$ se \textit{reduce polinomialmente} a otro $\Pi$ cuando existe una reducción polinomial entre $\Pi'$ y $\Pi$. Se denota $\Pi' \leq_p \Pi$.
 
-Las reducciones polinomiales son \textbf{transitivas}: si $\Pi_1 \leq_p \Pi_2$ y $\Pi_2 \leq_p \Pi_3$ entonces $\Pi_1 \leq_p \Pi_3$. Esto es porque, si las reducciones correspondientes son $f_{12}$ y $f_{23}$, se puede construir una función $f_{13}(I) = f_{23}(f_{12}(I))$. 
+Las reducciones polinomiales son \textbf{transitivas}: si $\Pi_1 \leq_p \Pi_2$ y $\Pi_2 \leq_p \Pi_3$ entonces $\Pi_1 \leq_p \Pi_3$. Esto es porque, si las reducciones correspondientes son $f_{12}$ y $f_{23}$, se puede construir una función $f_{13}(I) = f_{23}(f_{12}(I))$.
 
 \subsection{La clase NP-completo}
 \label{np-completo}
@@ -2611,7 +2611,7 @@ Si un problema cumple la condición $2$, se lo llama \textit{NP-difícil}.
 \end{theorem*}
 \begin{proof}
     Sabemos que $\textsc{SAT} \in NP$: para certificar una instancia $f \in Y_{\textsc{SAT}}$, se puede tomar la asignación de valores de verdad a las proposiciones de $f$. Tanto el tamaño de este certificado como verificarlo (que implica evaluar la fórmula en con los valores) son lineales.
-    
+
     Para ver que es NP-hard, tomemos un problema cualquiera $\Pi \in NP$. Como está en NP, hay una MTND que lo resuelve. Llamamos:
     \begin{itemize}
         \item $\Gamma = \Sigma \cup \{\ast\}$ a su alfabeto.
@@ -2657,7 +2657,7 @@ $$\Pi \leq_p \Pi' \implies \forall \bar{\Pi} \in NP, \bar{\pi} \leq_p \Pi'$$
 
 Esto vale por la transitividad de las reducciones polinomiales.
 
-Para demostrar el caso $P = NP$, bastaría con encontrar un problema en $NP\text{-completo} \cap P$, ya que los demás problemas de NP podrían ser reducidos a ese problema y resueltos, todo en tiempo polinomial. 
+Para demostrar el caso $P = NP$, bastaría con encontrar un problema en $NP\text{-completo} \cap P$, ya que los demás problemas de NP podrían ser reducidos a ese problema y resueltos, todo en tiempo polinomial.
 
 \section{Problemas NP-completos}
 
@@ -2676,32 +2676,32 @@ Como demuestra el teorema de Cook-Levin, SAT es NP-completo. Este hecho puede se
     Para demostrar que es NP-hard, se puede reducir SAT a 3-SAT. Esto se logra tomando cada cláusula $(p_{i1} \lor \cdots \lor p_{ik})$ y agregando distintas cláusulas dependiendo de su tamaño:
     \begin{itemize}
         \item Si $k = 1$, la cláusula tiene una sola proposición: $p_{i1}$. En ese caso se puede agregar el conjunto de cláusulas
-        \begin{align*}
-            (p_{i1} \lor q_{i1} \lor q_{i2})\ & \land \\
-            (p_{i1} \lor \neg q_{i1} \lor q_{i2})\ & \land \\
-            (p_{i1} \lor q_{i1} \lor \neg q_{i2})\ & \land \\
-            (p_{i1} \lor \neg q_{i1} \lor \neg q_{i2})\ &
-        \end{align*}
+              \begin{align*}
+                  (p_{i1} \lor q_{i1} \lor q_{i2})\            & \land \\
+                  (p_{i1} \lor \neg q_{i1} \lor q_{i2})\       & \land \\
+                  (p_{i1} \lor q_{i1} \lor \neg q_{i2})\       & \land \\
+                  (p_{i1} \lor \neg q_{i1} \lor \neg q_{i2})\  &
+              \end{align*}
 
-        Se puede ver que la única forma de que este grupo de cláusulas sea verdadero es que $p_{i1}$, ya que cualquier asignación de los parámetros $q_{i1}, q_{i2}$ hace que alguna de ellas sea falsa.
+              Se puede ver que la única forma de que este grupo de cláusulas sea verdadero es que $p_{i1}$, ya que cualquier asignación de los parámetros $q_{i1}, q_{i2}$ hace que alguna de ellas sea falsa.
 
         \item Si $k = 2$, la cláusula tiene 2 proposiciones: $(p_{i1} \lor p_{i2})$. En su lugar, se agregan dos cláusulas:
-            $$(p_{i1} \lor p_{i2} \lor q_i) \land (p_{i1} \lor p_{i2} \lor \neg q_i)$$
+              $$(p_{i1} \lor p_{i2} \lor q_i) \land (p_{i1} \lor p_{i2} \lor \neg q_i)$$
 
-        Este par de cláusulas es verdadero si y solo si la cláusula original es verdadera: el valor de la variable $q_i$ no afecta esto.
+              Este par de cláusulas es verdadero si y solo si la cláusula original es verdadera: el valor de la variable $q_i$ no afecta esto.
 
         \item Si $k = 3$, se pone la misma cláusula en la fórmula.
         \item Si $k > 3$, se puede usar el siguiente conjunto de cláusulas:
-            \begin{align*}
-                & (p_{i1} \lor p_{i2} \lor q_{i1})\\
-                \land\ & (\neg q_{i1} \lor p_{i3} \lor q_{i2})\\
-                & \vdots \\
-                \land\ & (\neg q_{i(j - 2)} \lor p_{ij} \lor q_{i(k - 1)})\\
-                & \vdots \\
-                \land\ & (\neg q_{i(k - 3)} \lor p_{i(k - 1)} \lor q_{ik})
-            \end{align*}
+              \begin{align*}
+                          & (p_{i1} \lor p_{i2} \lor q_{i1})                  \\
+                  \land\  & (\neg q_{i1} \lor p_{i3} \lor q_{i2})             \\
+                          & \vdots                                            \\
+                  \land\  & (\neg q_{i(j - 2)} \lor p_{ij} \lor q_{i(k - 1)}) \\
+                          & \vdots                                            \\
+                  \land\  & (\neg q_{i(k - 3)} \lor p_{i(k - 1)} \lor q_{ik})
+              \end{align*}
 
-        Este conjunto de cláusulas es verdadero si y solo si $(p_{i1} \lor \cdots \lor p_{ik})$ es verdadero.
+              Este conjunto de cláusulas es verdadero si y solo si $(p_{i1} \lor \cdots \lor p_{ik})$ es verdadero.
     \end{itemize}
 
     Como cada componente de la nueva conjunción $f'$ es satisfactible si y solo si el término correspondiente de $f$ lo es, $f \iff f'$. Además, el tamaño de la nueva fórmula es a lo sumo 3\footnote{No estoy seguro} veces más grande que la anterior, así que la reducción es polinomial. Queda demostrado $3-\text{SAT} \leq_p \text{SAT}$.
@@ -2718,7 +2718,7 @@ Como demuestra el teorema de Cook-Levin, SAT es NP-completo. Este hecho puede se
     \textbf{Entrada}: Un grafo $G = (V, E)$
 
     \textbf{Salida}: Un subgrafo inducido completo (también llamado clique) $K_m \subseteq G$ tal que
-        $$|K_m| \geq |S|\ \forall S \subseteq G, S \text{ es clique en } G$$
+    $$|K_m| \geq |S|\ \forall S \subseteq G, S \text{ es clique en } G$$
 \end{problema}
 
 La versión de decisión del problema de clique máxima es determinar si existe alguna clique en $G$ con tamaño mayor o igual $k$ para un $k$ dado.
@@ -2745,22 +2745,22 @@ Es habitual que una restricción de un problema de NP-completo esté en P, pero 
 \begin{itemize}
     \item Como vimos en la \hyperref[3-sat]{sección anterior}, 3-SAT es una restricción de SAT, pero ambos problemas son NP-completos. Por otro lado, 2-SAT (también una restricción de SAT) es polinomial.
     \item Coloreo es un problema NP-completo, y lo sigue siendo para:
-    \begin{itemize}
-        \item Grafos arco-circulares.
-        \item Grafos que no contienen a $P_5$ como subgrafo inducido.
-        \item Grafos planares.
-        \item Grafos sin triángulos.
-    \end{itemize}
+          \begin{itemize}
+              \item Grafos arco-circulares.
+              \item Grafos que no contienen a $P_5$ como subgrafo inducido.
+              \item Grafos planares.
+              \item Grafos sin triángulos.
+          \end{itemize}
 
-    Sin embargo, se vuelve polinomial si se restringe a:
-    \begin{itemize}
-        \item Grafos arco-circulares propios.
-        \item Cografos (grafos sin $P_4$ inducido).
-        \item Grafos de intervalos.
-        \item Grafos cordales.
-        \item Grafos perfectos.
-        \item Grafos sin subgrafos inducidos $K_{1, 3}$.
-    \end{itemize}
+          Sin embargo, se vuelve polinomial si se restringe a:
+          \begin{itemize}
+              \item Grafos arco-circulares propios.
+              \item Cografos (grafos sin $P_4$ inducido).
+              \item Grafos de intervalos.
+              \item Grafos cordales.
+              \item Grafos perfectos.
+              \item Grafos sin subgrafos inducidos $K_{1, 3}$.
+          \end{itemize}
 
     \item $k$-\textsc{Clique}, una restricción de \textsc{Clique} en la cual el tamaño de la clique es fijo, es polinomial para cualquier $k$. Esto se debe a que se pueden ennumerar todas las combinaciones de vértices de tamaño $k$ en tiempo \BigO{n^k} (lo cual, para $k$ fijo, es polinomial) y verificar si son cliques en tiempo cuadrático. Esto funciona porque cualquier grafo que tiene una clique de tamaño mayor a $k$ tiene otra(s) de tamaño exactamente $k$ como subgrafo de esta. El resultado implica que el problema \textsc{Clique en grafos planares} es polinomial, porque los grafos planares no pueden tener a $K_5$ como subgrafo (así que se puede reducir a \textsc{4-Clique}).
 \end{itemize}
