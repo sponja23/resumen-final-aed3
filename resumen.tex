@@ -1136,7 +1136,7 @@ El AGM de un grafo \underline{no necesariamente es único}: pueden varios grafos
 
 \subsubsection{Algoritmos}
 
-En las siguientes secciones analizaremos $2$ algoritmos para encontrar un AGM: el algoritmo de Prim y el de Kruskal. Ambos son golosos: siguen estrategias que toman en cada paso la mejor decisión a corto plazo, y en este caso devuelven soluciones óptimas. Logran esto armando progresivamente un bosque en un ciclo que mantiene el invariante de que sus aristas forman un subconjunto de las de algún AGM.
+En las siguientes secciones analizaremos $2$ algoritmos para encontrar un AGM: el algoritmo de Prim y el de Kruskal. Ambos son golosos: siguen estrategias que toman en cada paso la mejor decisión a corto plazo, y en este caso devuelven soluciones óptimas. Logran esto armando progresivamente un bosque (en el caso de Prim un árbol) en un ciclo que mantiene el invariante de que sus aristas forman un subconjunto de las de algún AGM.
 
 \begin{codebox}
     \Procname{$\proc{Arbol-Generador-Minimo}(G, w)$}
@@ -1253,7 +1253,7 @@ Los algoritmos se pueden implementar de la siguiente manera, donde \id{prev} es 
 \begin{codebox}
     \Procname{$\proc{Find}(x)$}
     \li \If $x \neq \id{prev}[x]$ \Then
-    \li $\id{prev}[x] \gets \proc{Find}(x)$
+    \li $\id{prev}[x] \gets \proc{Find}(\id{prev}[x])$
     \End
     \li \Return $\id{prev}[x]$
 \end{codebox}
@@ -1481,7 +1481,7 @@ Se podría demostrar la correctitud de la función \proc{Dijkstra-$\bullet$}, pe
 
     Sea $P = s \cdots y$ un camino mínimo entre $s$ e $y$, es decir, $w(P) = \delta(s, y)$. Tomamos el último vértice $x$ del camino que pertenece a $V_{k - 1}$, y sea $y$ el que lo sigue (estos deben existir, porque $x$ está en el conjunto, e $y$ no). Como se demostró anteriormente, $w(P_{su}) = \delta(s, u)$ (es subcamino de un camino mínimo). Como la arista $x \rightarrow y$ conecta un vértice de $V_{k - 1}$ con uno de $V - V_{k - 1}$, se debe cumplir que:
     \begin{flalign*}
-         &  & d[u] + w(u \rightarrow v)         & \leq  d[x] + w(x \rightarrow y)        &  & \text{($x \rightarrow y$ fue elegida por Dijkstra)} \\
+         &  & d[u] + w(u \rightarrow v)         & \leq  d[x] + w(x \rightarrow y)        &  & \text{($u \rightarrow v$ fue elegida por Dijkstra)} \\
          &  & \delta(s, u) + w(u \rightarrow v) & \leq \delta(s, x) + w(x \rightarrow y) &  & \text{(Por HI, ya que $u, x \in T_{k - 1}$)}
     \end{flalign*}
 
@@ -1558,7 +1558,7 @@ Primero analizamos el caso de grafos sin ciclos negativos:
 
     Podemos ver que ambas opciones cumplen la propiedad: $d_{k - 1}[u] \geq \delta(s, u)$ por HI, mientras que: $d_{k - 1}[u'] + w(u' \rightarrow u) \geq \delta(s, u') + w(u' \rightarrow u) \geq \delta(s, u)$ (desigualdad triangular).
 
-    Luego, por hipótesis Sabemos que en el paso $k - 1$-ésimo se cumplía que $d_{k - 1}[v] = \delta(s, v)$ para cualquier vértice $v$ con camino mínimo de longitud menor o igual a $k - 1$. Esto se sigue cumpliendo en $d_k$ para esos mismos vértices gracias a que, como \proc{Relajar} asigna:
+    Luego, por hipótesis sabemos que en el paso $k - 1$-ésimo se cumplía que $d_{k - 1}[v] = \delta(s, v)$ para cualquier vértice $v$ con camino mínimo de longitud menor o igual a $k - 1$. Esto se sigue cumpliendo en $d_k$ para esos mismos vértices gracias a que, como \proc{Relajar} asigna:
     $$d_k[v] \gets \min{\{d_{k - 1}[v], d_{k - 1}[u] + w(u \rightarrow v)\}}$$
 
     Se tiene que $d_k[v] \leq d_{k - 1}[v] = \delta(v, s)$. Como demostramos previamente, $d_k[v] \geq \delta(v, s)$, así que $d_k[v] = \delta(v, s)$.
@@ -1794,7 +1794,13 @@ Esto también se puede implementar de forma bottom-up: las distancias son calcul
     \li Inicializar arreglo de distancias $D$.
     \li Calcular un orden topológico de $G$.
     \li \For \Each $v \in V$, en orden topológico \Do
+    \li \If $s == v$ \Then
+    \li $D[v] \gets 0$
+    \li \Else
+    \li \If $N^-(v) \neq \emptyset$ \Then
     \li $D[v] \gets \min{\{D[z] + w(z \rightarrow v) \mid z \in N^-(v)\}}$
+    \li \Else 
+    \li $D[v] \gets \infty$
     \End
     \li \Return $D$
 \end{codebox}
@@ -2108,7 +2114,7 @@ El \textit{algoritmo de Edmonds-Karp} es una versión del de Ford-Fulkerson. En 
 \subsection{Definición}
 
 Dado un grafo bipartito $G = (V, E)$ con bipartición $(V_1, V_2)$, un \textit{matching} $M \subseteq E$ es un conjunto de aristas tal que:
-$$\forall u \rightarrow v \in M,\ (u \in V_1 \land v \in V_2) \lor u \in V_2 \land (v \in V_2)$$
+$$\forall u \rightarrow v \in M,\ (u \in V_1 \land v \in V_2) \lor (u \in V_2 \land v \in V_1)$$
 
 Otra definición equivalente para $M$ sería que cualquier vértice $v \in V$ es incidente a a lo sumo 1 arista de $M$. El problema de matching máximo en grafos bipartitos es:
 
@@ -2202,7 +2208,7 @@ $$
     r(v \rightarrow w) =
     \begin{cases}
         u(v \rightarrow w) - x(v \rightarrow w) & \si v \rightarrow w \in E \\
-        x(w \rightarrow v)                      & \si w \rightarrow w \in E
+        x(w \rightarrow v)                      & \si w \rightarrow v \in E
     \end{cases}
 $$
 
@@ -2255,7 +2261,7 @@ Esta red residual nos permite establecer una \textit{condición de optimalidad} 
 
 \subsection{Algoritmo de Klein}
 
-El \textit{algoritmo de Klein} o \textit{algoritmo de cancelación de ciclos} se basa en el teorema anterior: empieza desde un ciclo factible $x$ y, mientras exista un ciclo negativo en su red residual, aumenta el flujo a lo largo de ese ciclo. Esto garantiza que:
+El \textit{algoritmo de Klein} o \textit{algoritmo de cancelación de ciclos} se basa en el teorema anterior: empieza desde un flujo factible $x$ y, mientras exista un ciclo negativo en su red residual, aumenta el flujo a lo largo de ese ciclo. Esto garantiza que:
 \begin{itemize}
     \item En cada paso se obtiene un flujo de costo estrictamente menor.
     \item Al terminar, como no existe ningún ciclo negativo en la red residual, el flujo es óptimo.
