@@ -1,0 +1,338 @@
+\chapter{NP-Completitud}
+\label{capitulo-np-completitud}
+
+\section{Problemas}
+
+\subsection{Versiones}
+
+Dada una instancia $I$ del problema de optimización $\Pi$ con función objetivo $f$, se pueden derivar varias versiones:
+\begin{itemize}
+    \item Versión de \textbf{optimización}: Encontrar una \underline{solución óptima} $S^*$ del problema $\Pi$ para $I$ (con $f(S^*) \geq f\ \forall S$ en el caso de maximización y $f(S^*) \le f\ \forall S$ para la minimización).
+    \item Versión de \textbf{evaluación}: Determinar el \underline{valor} $f(S^*)$ de una solución óptima de $\Pi$ para $I$.
+    \item Versión de \textbf{localización}: Dado un número $k$, determinar una solución factible $S$ de $\Pi$ para $I$ tal que \underline{$f(S) \leq k$} si el problema es de minimización, o $f(S) \geq k$ si es de maximización.
+    \item Versión de \textbf{decisión}: Dado un número $k$, ¿\underline{Existe} una solución factible $S$ de $\Pi$ para $I$ tal que $f(S) \leq k$ si el problema es de minimización, o $f(S) \geq k$ si es de maximización?
+\end{itemize}
+
+Tomemos el ejemplo del problema de viajante de comercio:
+
+\begin{problema}
+    Dado un grafo pesado $G = (V, E, w)$, encontrar un \textit{circuito hamiltoniano} de peso mínimo, es decir, un circuito simple $C^*$ que pase por todos los vértices y minimice su peso total:
+    $$C^* = \arg\min\left\{\sum_{e \in C} w(e) \mid C \text{ es circuito hamiltoniano en $G$}\right\}$$
+\end{problema}
+
+Para este problema, las versiones serían:
+\begin{itemize}
+    \item Versión de \textbf{optimización}: Encontrar un circuito hamiltoniano en $G$ de peso mínimo.
+    \item Versión de \textbf{evaluación}: Determinar la longitud mínima que puede tener un circuito hamiltoniano en $G$.
+    \item Versión de \textbf{localización}: Dado un número $k$, encontrar un circuito hamiltoniano en $G$ que tenga peso menor o igual a $k$.
+    \item Versión de \textbf{decisión}: Dado un número $k$, ¿Existe un circuito hamiltoniano en $G$ que tenga peso menor o igual a $k$?
+\end{itemize}
+
+Para muchos problemas de optimización combinatoria, las cuatro versiones son equivalentes: si una de ellas puede resolverse eficientemente, las demás también. El estudio se realiza en la versión más simple: la de \underline{decisión} (y hay problemas que no tienen versión de optimización). Estos tienen dos respuestas posibles: \textbf{SÍ} o \textbf{NO}.
+
+\subsection{Definición}
+
+Un problema $\Pi$ se define dando su entrada y su salida:
+\begin{problema}
+    \textsc{Satisfactibilidad (SAT)}
+    \medskip
+
+    Dada una \textit{fórmula proposicional $f$} en forma normal conjuntiva, ¿Existe una asignación de valores de verdad ($\{True, False\}$) a las proposiciones de $f$ que hace que $f$ sea verdadera?
+\end{problema}
+
+Una \textit{instancia} $I$ de un problema es una especificación de sus parámetros. En el ejemplo de SAT, sería una fórmula CNF.
+
+Un problema de decisión $\Pi$ tiene asociado un conjunto $I_{\Pi}$ de instancias, y un subconjunto de ellas $Y_{\Pi} \subseteq I_{\Pi}$ cuya respuesta es \textbf{SÍ}.
+
+\section{Máquinas de Turing}
+
+\subsection{Máquina de Turing Determinística}
+
+Una \textit{máquina de Turing determinística} (MTD) es un modelo de cómputo simple. La máquina cuenta con:
+\begin{itemize}
+    \item Una \textit{cabeza lecto-escritora}, que se puede mover 1 unidad en ambas direcciones (Definido como $M = \{+1, -1\}$).
+    \item Una \textit{cinta infinita} en ambas direcciones con celdas indexadas en $\Z$.
+    \item Una celda inicial con índice $0$.
+\end{itemize}
+
+Esas son las características generales de cualquier MTD. Para una máquina particular, se tiene:
+\begin{itemize}
+    \item Un \textit{alfabeto} de \textit{símbolos} finito $\Sigma$ y un símbolo especial $\ast$ llamado ``\textit{blanco}''. Se define $\Gamma = \Sigma \cup \{\ast\}$. La celda puede tomar valores en $\Gamma$.
+    \item Un conjunto finito $Q$ de \textit{estados}.
+    \item Un \textit{estado inicial} $q_0 \in Q$.
+    \item Un conjunto de \textit{estados finales} $Q_f \subseteq Q$ (en el caso de problemas de optimización $Q_f = \{q_{\text{sí}}, q_{\text{no}}\}$).
+    \item Un \textit{programa}, definido como un conjunto finito de \textit{instrucciones}. Estas, a su vez, están definidas como quíntuplas $S \in Q \times \Gamma \times Q \times \Gamma \times M$, y una instrucción $(q, s, q', s', m)$ se interpreta como: ``Si la máquina está en el estado $q$ y la cabeza lee el símbolo $s$, entonces escribe $s'$ en esa celda, realiza el movimiento $m$, y pasa al estado $q'$''.
+\end{itemize}
+
+La entrada al programa se carga utilizando los símbolos de $\Sigma$, y las demás celdas en la cinta empiezan con el valor $\ast$.
+
+El modelo es capaz de simular cualquier otra máquina Turing-equivalente, lo cual incluye a la \hyperref[maquina-ram]{máquina de RAM} analizada anteriormente.
+
+\subsubsection{Determinismo}
+
+Las MTDs son \textit{determinísticas}: para todo par $(q, s) \in Q \times \Gamma$, existe en el programa a lo sumo una quíntupla que comienza con ese prefijo. Esto implica que, en cada paso, no hay ambigüedad respecto a qué hacer (porque solo una instrucción aplica).
+
+\subsubsection{Resolución y Complejidad}
+
+La máquina \textit{resuelve} el problema $\Pi$ si para toda instancia $I \in I_{\Pi}$ esta alcanza un estado final y es el correcto.
+
+La \textit{complejidad} de una MTD está dada por la cantidad de movimientos de la cabeza que se realizan entre el estado inicial y el final, en función del tamaño de entrada:
+$$T_M(n) = \max\{m \mid M \text{ realiza $m$ movimientos para la entrada $I \in I_{@P}, |I| = n$}\}$$
+
+Una MTD $M$ es \textit{polinomial} para $\Pi$ cuando $T_M(n) \in \BigO{n^k}$ para algún $k$.
+
+\subsection{La clase P}
+
+Un problema de decisión $\Pi$ pertenece a la clase P si existe una MTD polinomial que lo resuelve. Esto equivalente a que exista un algoritmo polinomial (en la máquina RAM) que resuelve $\Pi$. Hay problemas (como la \hyperref[programacion-lineal]{programación lineal}) que son P-completos: cualquier problema de P se puede reducir a una instancia de ellos
+
+\subsection{Máquina de Turing no Determinística}
+
+Una máquina de Turing no determinística (MTND) es una máquina de Turing en la que no se requiere unicidad para el prefijo $(q, s)$ con el que empieza cada instrucción. En el caso de estar en un estado y símbolo donde múltiples instrucciones aplican, la máquina elige cualquiera de ellas (no está especificado cuál).
+
+\subsubsection{Resolución y Complejidad}
+
+Una MTND resuelve el problema de decisión $\Pi$ cuando existe una secuencia de ejecución de instrucciones que lleva a un estado de aceptación si y solo si la respuesta correcta es sí. La ejecución se puede interpretar como un \textit{árbol de alternativas}, donde cada nodo representa un punto en el que se puede ``elegir'' entre 1 o más instrucciones válidas.
+
+Una definición equivalente sería que para toda instancia de $Y_{\Pi}$ existe \textbf{al menos una} rama de ejecución que termina en $q_{\text{sí}}$, mientras que para toda instancia de $I_{\Pi} - Y_{\Pi}$, ninguna lo hace.
+
+Por otro lado, la complejidad temporal deuna MTND $M$ se define como el máximo número de pasos que toma la rama de ejecución más corta en llegar a $q_{\text{sí}}$ para una instancia de $Y_{\Pi}$ en función de su tamaño:
+$$T_M(n) = \max\{m \mid \text{La rama más corta de $M$ termina en $m$ movimientos para $x \in Y_{\Pi}, |x| = n$}\}$$
+
+Una MTND $M$ es polinomial para $\Pi$ cuando $T_M(n) \in \BigO{n^k}$ para algún $k$.
+
+\subsection{La clase NP}
+
+Un problema de decisión $\Pi$ pertenece a la clase NP (polinomial no-detereminístico) cuando existe una MTND polinomial que lo resuelve.
+
+Una definición equivalente es que, dada una instancia $I \in Y_{\Pi}$, se puede dar un \textit{certificado} de longitud polinomial (con respecto al tamaño de $I$) que garantiza que la respuesta es \textbf{SÍ}, y esto se puede verificar en tiempo polinomial.
+
+Una observación es que $P \subseteq NP$: para un problema polinomial, una instancia $I \in Y_{\Pi}$ es su propio certificado, ya que tiene tamaño lineal con respecto a sí misma y se puede verificar aplicando el algoritmo que resuelve el problema que, por definición, es polinomial.
+
+\begin{theorem*}
+    Si $\Pi$ es un problema de decisión que pertenece a la clase NP, entonces $\Pi$ puede ser resuelto por un algoritmo determinístico en tiempo exponencial con respecto al tamaño de la entrada.
+\end{theorem*}
+\begin{proof}
+    Para resolver $\Pi$, se puede simular la ejecución de la MTND que lo resuelve: cada vez que hay ambigüedad con respecto a la instrucción a aplicar se exploran todos los ``súbarboles de ejecución''. Esto implica una complejidad exponencial: si hay a lo sumo $A$ estados distintos para cada punto de no-determinismo, se realizan \BigO{A^{T_M(n)}}, y $T_M(n)$ es una función exponencial (porque $\Pi \in \text{NP}$).
+\end{proof}
+
+\subsubsection{P vs. NP}
+
+El problema abierto más famoso en la ciencia de la computación es el de P vs. NP, esto es, es la clase P la misma que NP. Se sabe que $P \subseteq NP$, así que lo que se demostraría es si $NP \subseteq P$ o $NP \subsetneq P$. Si P fuera igual a NP, entonces cualquier problema que se pueda certificar en tiempo polinomial se podría resolver también en tiempo polinomial.
+
+\subsection{Reducciones Polinomiales}
+\label{reducciones}
+
+Una \textit{transformación} o \textit{reducción polinomial} de un problema de decisión $\Pi'$ a otro $\Pi$ es una función $f: I_{\Pi'} \longrightarrow I_{\Pi}$ que puede ser computada en tiempo polinomial y cumple que:
+$$I' \in Y_{\Pi'} \iff f(I') \in Y_{\Pi} \forall I' \in I_{\Pi'}$$
+
+Es decir, una instancia de $\Pi'$ tiene respuesta sí si y solo si la instancia correspondiente $f(I')$ tiene respuesta sí.
+
+Se dice que un problema de decisión $\Pi'$ se \textit{reduce polinomialmente} a otro $\Pi$ cuando existe una reducción polinomial entre $\Pi'$ y $\Pi$. Se denota $\Pi' \leq_p \Pi$.
+
+Las reducciones polinomiales son \textbf{transitivas}: si $\Pi_1 \leq_p \Pi_2$ y $\Pi_2 \leq_p \Pi_3$ entonces $\Pi_1 \leq_p \Pi_3$. Esto es porque, si las reducciones correspondientes son $f_{12}$ y $f_{23}$, se puede construir una función $f_{13}(I) = f_{23}(f_{12}(I))$.
+
+\subsection{La clase NP-completo}
+\label{np-completo}
+\label{np-hard}
+
+Un problema de decisión $\Pi$ es \textit{NP-completo} cuando:
+\begin{enumerate}
+    \item $\Pi \in NP$
+    \item $\forall \bar{\Pi} \in NP, \bar{\Pi} \leq_p \Pi$
+\end{enumerate}
+
+Si un problema cumple la condición $2$, se lo llama \textit{NP-difícil}.
+
+\begin{theorem*}
+    (Teorema de Cook-Levin) SAT es NP-Completo.
+\end{theorem*}
+\begin{proof}
+    Sabemos que $\textsc{SAT} \in NP$: para certificar una instancia $f \in Y_{\textsc{SAT}}$, se puede tomar la asignación de valores de verdad a las proposiciones de $f$. Tanto el tamaño de este certificado como verificarlo (que implica evaluar la fórmula en con los valores) son lineales.
+
+    Para ver que es NP-hard, tomemos un problema cualquiera $\Pi \in NP$. Como está en NP, hay una MTND que lo resuelve. Llamamos:
+    \begin{itemize}
+        \item $\Gamma = \Sigma \cup \{\ast\}$ a su alfabeto.
+        \item $Q$ a su conjunto de estados.
+        \item $s \in Q$ al estado inicial.
+        \item $F \subseteq Q$ al conjunto de estados finales.
+        \item $\Delta \subseteq Q \times \Gamma \times Q \times \Gamma \times M$ al conjunto de instrucciones.
+    \end{itemize}
+
+    Asumimos $M = \{+1, 0, -1\}$ (el cabezal se puede quedar quieto).
+
+    Reducimos $\Pi$ a SAT de la siguiente manera: dado un input $I$ de $\Pi$, construimos una fórmula proposicional $f$ tal que $f$ es satisfactible si y solo si $I \in Y_{\Pi}$. Sea $p(n)$ la función de complejidad de la MTND. La fórmula contiene las siguientes propocisiones:
+    \begin{itemize}
+        \item $T_{ijk} \equiv $ ``la celda $i$ contiene el símbolo $j$ en el paso $k$ de la ejecución de la MTND''
+        \item $H_{ik} \equiv $ ``el cabezal de la MTND está ubicado en la celda $i$ en el paso $k$''
+        \item $Q_{qk} \equiv $ ``la MTND está en estado $q$ en el paso $k$''
+    \end{itemize}
+
+    Para $i = \{-p(n), ..., p(n)\}$ (el cabezal no se puede mover más que la cantidad máxima de pasos), $k = \{0, ..., p(n)\}$, $j \in \Gamma$ y $q \in Q$. Además, llamamos $I = (j_0, ..., j_{n - 1})$ a la entrada, que empieza en la celda $0$.
+
+    Las cláusulas de la fórmula son las siguientes:
+    \begin{itemize}
+        \item $T_{i j_i 0}$: la celda $i$ contiene el valor $j_i$ en tiempo $0$, para $i = 0, ..., n - 1$.
+        \item $T_{i \ast 0}$: la celda $i$ contiene el valor blanco en tiempo $0$, para $i \in \{-p(n), ..., p(n)\} - \{0, ..., n - 1\}$
+        \item $H_{00}$: el cabezal comienza en la celda $0$.
+        \item $Q_{s0}$: la máquina comienza en el estado $s$.
+        \item $\neg (T_{ijk} \land T_{ij'k})$: la celda $i$ contiene a lo sumo un símbolo en el paso $k$ ($j \neq j'$).
+        \item $\bigvee_{j \in \Gamma} T_{ijk}$: la celda $i$ contiene al menos un símbolo en el paso $k$.
+        \item $T_{ijk} \land T_{ij'(k+1)} \implies H_{ik}$: las celdas no apuntadas por el cabezal no cambian ($j \neq j', k < p(n)$).
+        \item $\neq (Q_{qk} \land Q_{q'k})$: la máquina está en a lo sumo un estado en el paso $k$ ($q \neq q'$).
+        \item $\neq (H_{ik} \land H_{i'k})$: el cabezal apunta a lo sumo a una celda en el celda paso $k$ ($i \neq i'$).
+        \item $H_{ik} \land Q_{qk} \land T_{i \sigma k} \implies \bigvee_{(q, \sigma, q', \sigma', m) \in \Delta} (H_{(i+m)(k + 1)} \land Q_{q'(k + 1)} \land T_{i \sigma (k + 1)})$: en cada paso $k < p(n)$, se da una de las transiciones válidas.
+        \item $\bigvee_{k = 0}^{p(n)} \bigvee_{f \in F} Q_{fk}$: la máquina termina en un estado final.
+    \end{itemize}
+
+    Si hay un cómputo de la MTND con $I$ que termina en un estado $F$, entonces $f$ es satisfacible asignando las proposiciones correspondientes a la ejecución. Recíprocamente, si $f$ es satisfacible, entonces existe un cómputo de la MTND que, a partir de $I$ y siguiendo los pasos especificados por las proposiciones verdaderas, llega a un estado de $F$. Como la fórmula tiene \BigO{p(n)^2} proposiciones y \BigO{n^3} cláusulas, esta reducción es polinomial.
+
+    Dado que esta reducción es posible para cualquier problema $\Pi \in NP$, SAT es NP-completo.
+\end{proof}
+
+Para demostrar la NP-completitud de otros problemas $\Pi' \in NP$, se puede reducir problemas conocidos NP-completos a ellos: si $\Pi$ es un problema NP-completo, entonces
+$$\Pi \leq_p \Pi' \implies \forall \bar{\Pi} \in NP, \bar{\pi} \leq_p \Pi'$$
+
+Esto vale por la transitividad de las reducciones polinomiales.
+
+Para demostrar el caso $P = NP$, bastaría con encontrar un problema en $NP\text{-completo} \cap P$, ya que los demás problemas de NP podrían ser reducidos a ese problema y resueltos, todo en tiempo polinomial.
+
+\section{Problemas NP-completos}
+
+Como demuestra el teorema de Cook-Levin, SAT es NP-completo. Este hecho puede ser utilizado para demostrar la NP-completitud de múltiples problemas: en 1972, Karp demostró que otros 21 problemas son NP-completos. En la actualidad se conocen más de 3000 problemas problemas NP-completos.
+
+\subsection{3-SAT}
+\label{3-sat}
+
+3-SAT es una versión restringida de SAT, donde las fórmulas CNF $f$ tienen exactamente 3 literales. A pesar de ser aparentemente menos general, este problema también es NP-completo.
+\begin{theorem*}
+    3-SAT es NP-completo
+\end{theorem*}
+\begin{proof}
+    Para demostrar que está en NP, se puede tomar el mismo certificado y verificador que para SAT: la asignación de valores que hace a $f$ verdadera.
+
+    Para demostrar que es NP-hard, se puede reducir SAT a 3-SAT. Esto se logra tomando cada cláusula $(p_{i1} \lor \cdots \lor p_{ik})$ y agregando distintas cláusulas dependiendo de su tamaño:
+    \begin{itemize}
+        \item Si $k = 1$, la cláusula tiene una sola proposición: $p_{i1}$. En ese caso se puede agregar el conjunto de cláusulas
+              \begin{align*}
+                  (p_{i1} \lor q_{i1} \lor q_{i2})\            & \land \\
+                  (p_{i1} \lor \neg q_{i1} \lor q_{i2})\       & \land \\
+                  (p_{i1} \lor q_{i1} \lor \neg q_{i2})\       & \land \\
+                  (p_{i1} \lor \neg q_{i1} \lor \neg q_{i2})\  &
+              \end{align*}
+
+              Se puede ver que la única forma de que este grupo de cláusulas sea verdadero es que $p_{i1}$, ya que cualquier asignación de los parámetros $q_{i1}, q_{i2}$ hace que alguna de ellas sea falsa.
+
+        \item Si $k = 2$, la cláusula tiene 2 proposiciones: $(p_{i1} \lor p_{i2})$. En su lugar, se agregan dos cláusulas:
+              $$(p_{i1} \lor p_{i2} \lor q_i) \land (p_{i1} \lor p_{i2} \lor \neg q_i)$$
+
+              Este par de cláusulas es verdadero si y solo si la cláusula original es verdadera: el valor de la variable $q_i$ no afecta esto.
+
+        \item Si $k = 3$, se pone la misma cláusula en la fórmula.
+        \item Si $k > 3$, se puede usar el siguiente conjunto de cláusulas:
+              \begin{align*}
+                          & (p_{i1} \lor p_{i2} \lor q_{i1})                  \\
+                  \land\  & (\neg q_{i1} \lor p_{i3} \lor q_{i2})             \\
+                          & \vdots                                            \\
+                  \land\  & (\neg q_{i(j - 2)} \lor p_{ij} \lor q_{i(k - 1)}) \\
+                          & \vdots                                            \\
+                  \land\  & (\neg q_{i(k - 3)} \lor p_{i(k - 1)} \lor q_{ik})
+              \end{align*}
+
+              Este conjunto de cláusulas es verdadero si y solo si $(p_{i1} \lor \cdots \lor p_{ik})$ es verdadero.
+    \end{itemize}
+
+    Como cada componente de la nueva conjunción $f'$ es satisfactible si y solo si el término correspondiente de $f$ lo es, $f \iff f'$. Además, el tamaño de la nueva fórmula es a lo sumo 3\footnote{No estoy seguro} veces más grande que la anterior, así que la reducción es polinomial. Queda demostrado $3-\text{SAT} \leq_p \text{SAT}$.
+
+\end{proof}
+
+\subsection{Clique máxima}
+\label{clique}
+
+\begin{problema}
+    \textsc{Clique}
+    \medskip
+
+    \textbf{Entrada}: Un grafo $G = (V, E)$
+
+    \textbf{Salida}: Un subgrafo inducido completo (también llamado clique) $K_m \subseteq G$ tal que
+    $$|K_m| \geq |S|\ \forall S \subseteq G, S \text{ es clique en } G$$
+\end{problema}
+
+La versión de decisión del problema de clique máxima es determinar si existe alguna clique en $G$ con tamaño mayor o igual $k$ para un $k$ dado.
+
+\begin{theorem*}
+    \textsc{Clique} es NP-completo
+\end{theorem*}
+\begin{proof}
+    % TODO
+\end{proof}
+
+% TODO: Maximum independent set, coloreo
+
+\section{Restricción y Extensión}
+
+\subsection{Definición}
+
+El problema $\Pi$ es una \textit{restricción} de otro problema $\bar{\Pi}$ si el dominio de $\Pi$ está incluido en el dominio de $\bar{\Pi}$, y la salida de ambos problemas es la misma (es decir, son el mismo problema, pero $\Pi$ tiene una entrada restringida). Cuando sucede esto, se dice que $\bar{\Pi}$ es una \textit{extensión} o \textit{generalización} de $\Pi$.
+
+Es habitual que una restricción de un problema de NP-completo esté en P, pero que la situación recíproca no pueda suceder (a menos que P = NP).
+
+\subsection{Ejemplos}
+
+\begin{itemize}
+    \item Como vimos en la \hyperref[3-sat]{sección anterior}, 3-SAT es una restricción de SAT, pero ambos problemas son NP-completos. Por otro lado, 2-SAT (también una restricción de SAT) es polinomial.
+    \item Coloreo es un problema NP-completo, y lo sigue siendo para:
+          \begin{itemize}
+              \item Grafos arco-circulares.
+              \item Grafos que no contienen a $P_5$ como subgrafo inducido.
+              \item Grafos planares.
+              \item Grafos sin triángulos.
+          \end{itemize}
+
+          Sin embargo, se vuelve polinomial si se restringe a:
+          \begin{itemize}
+              \item Grafos arco-circulares propios.
+              \item Cografos (grafos sin $P_4$ inducido).
+              \item Grafos de intervalos.
+              \item Grafos cordales.
+              \item Grafos perfectos.
+              \item Grafos sin subgrafos inducidos $K_{1, 3}$.
+          \end{itemize}
+
+    \item $k$-\textsc{Clique}, una restricción de \textsc{Clique} en la cual el tamaño de la clique es fijo, es polinomial para cualquier $k$. Esto se debe a que se pueden ennumerar todas las combinaciones de vértices de tamaño $k$ en tiempo \BigO{n^k} (lo cual, para $k$ fijo, es polinomial) y verificar si son cliques en tiempo cuadrático. Esto funciona porque cualquier grafo que tiene una clique de tamaño mayor a $k$ tiene otra(s) de tamaño exactamente $k$ como subgrafo de esta. El resultado implica que el problema \textsc{Clique en grafos planares} es polinomial, porque los grafos planares no pueden tener a $K_5$ como subgrafo (así que se puede reducir a \textsc{4-Clique}).
+\end{itemize}
+
+\section{La clase co-NP}
+
+\subsection{Problema complemento}
+
+El \textit{problema complemento} de un problema de decisión $\Pi$, $\Pi^c$, es un problema de decisión con el mismo conjunto de instancias, pero cuya respuesta es \textbf{SÍ} para todas las instancias \textbf{NO} de $\Pi$, y viceversa. Es decir, $\Pi^c$ cumple:
+\begin{itemize}
+    \item $I_{\Pi^c} = I_{\Pi}$
+    \item $Y_{\Pi^c} = I_{\Pi} - Y_{\Pi}$
+\end{itemize}
+
+Un ejemplo posible sería \textsc{Tautology}: Dada una fórmula $f$ en DNF, es $f$ una tautología. Esto es cierto si y solo si $\neg f$, una fórmula CNF, es una contradicción, es decir, no se puede satisfacer, así que el problema responde \textbf{SÍ} para las instancias de \textsc{SAT} que no son satisfactibles.
+
+\begin{theorem*}
+    Si un problema $\Pi$ está en $P$, entonces $\Pi^c \in P$.
+\end{theorem*}
+\begin{proof}
+    Si existe un algoritmo polinomial para resolver $\Pi$ en tiempo polinomial, la respuesta de ese algoritmo se puede invertir, obteniendo un algoritmo polinomial para $\Pi^c$.
+\end{proof}
+
+Este argumento no sirve para la clase NP: que $\Pi$ esté en NP significa que hay un certificado y verificador polinomiales para las instancias de $Y_{\Pi}$ (no necesariamente para las de $Y_{\Pi^c} = I_{\Pi} - Y_{\Pi}$).
+
+\subsection{co-NP}
+
+La clase co-NP está definida como aquellos problemas cuyo complemento está en NP, es decir:
+$$\Pi \in NP \iff \Pi^c \in co-NP$$
+
+Una definición alternativa sería que son aquellos problemas donde existen certificado y verificador polinomiales para instancias de respuesta \textbf{NO}. El problema \textsc{Tautology}, mencionado anteriormente, es un ejemplo de un miembro de esa clase y, más aún, es co-NP-completo: cualquier problema de co-NP se puede reducir polinomialmente a este.
+
+\begin{theorem*}
+    Si $\Pi \in$ NP-completo, $\Pi^c \in$ co-NP-completo
+\end{theorem*}
+\begin{proof}
+    Si $\Pi$ es NP-completo existe, para cualquier problema $\bar{\Pi} \in$ NP, una reducción polinomial a $\Pi$. Esta misma reducción se puede aplicar entre problemas de co-NP y $\Pi^c$.
+\end{proof}
