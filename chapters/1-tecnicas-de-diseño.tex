@@ -88,11 +88,11 @@ Informalmente, $f \in \BigO{g}$ implica que $f$ crece a lo sumo tan rápido como
 \subsubsection{Complejidades comunes}
 
 \begin{itemize}
-    \item Si un algoritmo es\BigO{\log{n}}, se dice \textbf{logarítmico}.
-    \item Si un algoritmo es\BigO{n}, se dice \textbf{lineal}.
-    \item Si un algoritmo es\BigO{n^2}, se dice \textbf{cuadrático}.
-    \item Si un algoritmo es\BigO{n^3}, se dice \textbf{cúbico}.
-    \item Si un algoritmo es\BigO{n^k}, se dice \textbf{polinomial}.
+    \item Si un algoritmo es \BigO{\log{n}}, se dice \textbf{logarítmico}.
+    \item Si un algoritmo es \BigO{n}, se dice \textbf{lineal}.
+    \item Si un algoritmo es \BigO{n^2}, se dice \textbf{cuadrático}.
+    \item Si un algoritmo es \BigO{n^3}, se dice \textbf{cúbico}.
+    \item Si un algoritmo es \BigO{n^k}, se dice \textbf{polinomial}.
     \item Si un algoritmo es $\BigO{k^n}\ (k > 1)$, se dice \textbf{exponencial}.
 \end{itemize}
 
@@ -239,7 +239,7 @@ Esta fórmula recursiva se puede implementar directamente:
     \End
 \end{codebox}
 
-Este método tiene una complejidad de\BigOmega{\binom{n}{k}}, y evita calcular factoriales, pero podría ser más eficiente, ya que al ejecutarlo se repiten llamadas con los mismos parámetros.
+Este método tiene una complejidad de \BigOmega{\binom{n}{k}}, y evita calcular factoriales, pero podría ser más eficiente, ya que al ejecutarlo se repiten llamadas con los mismos parámetros.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{combinatorio_call_tree.jpg}
@@ -263,7 +263,7 @@ Acá es donde entra en juego la programación dinámica. El siguiente algoritmo 
     \End
 \end{codebox}
 
-La complejidad de este método es\BigO{nk}, y $\BigO{nk} \subseteq \BigO{n^2}$, ya que $k \leq n$. Además, se puede implementar con una complejidad espacial de\BigO{k} almacenando solo la fila actual y la anterior de la tabla en el ciclo.
+La complejidad de este método es \BigO{nk}, y $\BigO{nk} \subseteq \BigO{n^2}$, ya que $k \leq n$. Además, se puede implementar con una complejidad espacial de \BigO{k} almacenando solo la fila actual y la anterior de la tabla en el ciclo.
 
 \subsection{Principio de optimalidad de Bellman}
 \label{optimalidad-bellman}
@@ -297,7 +297,7 @@ $$
 
 Esto contempla, para cada $k$ dos posibilidades: o bien el objeto de índice $k$ está en la solución óptima, y entonces $m(k, D) = b_k + m(k - 1, D - p_k)$, o bien no, en cuyo caso $m(k, D) = m(k - 1, D)$.
 
-Si esta función se implementa directamente en un algoritmo de PD (ya sea top-down o bottom-up) utilizando una matriz como estructura de memoización, tanto la complejidad temporal como la espacial son\BigO{nC}. Esta complejidad es \textit{pseudopolinomial}: está acotada por un polinomio, pero este incluye valores númericos del input, no solo el tamaño del mismo.
+Si esta función se implementa directamente en un algoritmo de PD (ya sea top-down o bottom-up) utilizando una matriz como estructura de memoización, tanto la complejidad temporal como la espacial son \BigO{nC}. Esta complejidad es \textit{pseudopolinomial}: está acotada por un polinomio, pero este incluye valores númericos del input, no solo el tamaño del mismo.
 
 \subsubsection{Solución óptima}
 \label{reconstruccion-solucion}
@@ -363,7 +363,7 @@ A pesar de haber resuelto el problema \hyperref[problema-mochila]{anteriormente}
     \item ...maximice $\frac{b_i}{p_i}$ (la ``densidad'').
 \end{enumerate}
 
-Se puede demostrar que, si se corre el algoritmo goloso $2$ veces, una con el primer criterio y otra con el segundo, alguno de los resultados tiene un valor de al menos la mitad de la solución óptima. Esto hace al procedimiento un algoritmo $\frac{1}{2}$-aproximado, y se puede implementar en tiempo\BigO{n\log{n}} si se ordenan los elementos previamente (es aún más eficiente usar una colas de prioridad implementadas con heap).
+Se puede demostrar que, si se corre el algoritmo goloso $2$ veces, una con el primer criterio y otra con el segundo, alguno de los resultados tiene un valor de al menos la mitad de la solución óptima. Esto hace al procedimiento un algoritmo $\frac{1}{2}$-aproximado, y se puede implementar en tiempo \BigO{n\log{n}} si se ordenan los elementos previamente (es aún más eficiente usar una colas de prioridad implementadas con heap).
 
 Por otro lado, si cambia el problema, permitiendo poner una \underline{fracción} de cada elemento en la mochila, el algoritmo goloso que utiliza el tercer criterio devuelve soluciones óptimas.
 
@@ -402,7 +402,7 @@ $$T = t_{i_1} + (t_{i_1} + t_{i_2}) + ... = \sum_{k=1}^n (n - k) t_{i_k}$$
 
 Se puede plantear el siguiente algoritmo goloso: En cada paso, atender al cliente pendiente que tenga el menor tiempo de atención. La idea detrás de ese criterio es que el tiempo de los clientes que son atendidos primero tendrá que ser esperado por todos los demás, así que lo ideal es que sea el mínimo. Formalmente, la solución $I = (i_1, ..., i_n)$ es una que cumple $t_{i_j} \leq t_{i_{j+1}}$ para $j = 1, ..., n - 1$.
 
-En este caso, la solución que proporciona el algoritmo resulta ser óptima. Por otro lado, la complejidad temporal es\BigO{n\log{n}}, ya que el procedimiento es equivalente a ordenar a los clientes por tiempo de espera.
+En este caso, la solución que proporciona el algoritmo resulta ser óptima. Por otro lado, la complejidad temporal es \BigO{n\log{n}}, ya que el procedimiento es equivalente a ordenar a los clientes por tiempo de espera.
 
 \section{Algoritmos Probabilísticos}
 

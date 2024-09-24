@@ -57,7 +57,7 @@ Una \textit{máquina de Turing determinística} (MTD) es un modelo de cómputo s
 
 Esas son las características generales de cualquier MTD. Para una máquina particular, se tiene:
 \begin{itemize}
-    \item Un \textit{alfabeto} de \textit{símbolos} finito $\Sigma$ y un símbolo especial $\ast$ llamado ``\textit{blanco}''. Se define $\Gamma = \Sigma \cup \{\ast\}$. La celda puede tomar valores en $\Gamma$.
+    \item Un \textit{alfabeto} de \textit{símbolos} finito $\Sigma$ y un símbolo especial $\ast$ llamado ``\textit{blanco}''. Se define $\Gamma = \Sigma \cup \{\ast\}$. Las celdas puede tomar valores en $\Gamma$.
     \item Un conjunto finito $Q$ de \textit{estados}.
     \item Un \textit{estado inicial} $q_0 \in Q$.
     \item Un conjunto de \textit{estados finales} $Q_f \subseteq Q$ (en el caso de problemas de optimización $Q_f = \{q_{\text{sí}}, q_{\text{no}}\}$).
@@ -77,7 +77,7 @@ Las MTDs son \textit{determinísticas}: para todo par $(q, s) \in Q \times \Gamm
 La máquina \textit{resuelve} el problema $\Pi$ si para toda instancia $I \in I_{\Pi}$ esta alcanza un estado final y es el correcto.
 
 La \textit{complejidad} de una MTD está dada por la cantidad de movimientos de la cabeza que se realizan entre el estado inicial y el final, en función del tamaño de entrada:
-$$T_M(n) = \max\{m \mid M \text{ realiza $m$ movimientos para la entrada $I \in I_{@P}, |I| = n$}\}$$
+$$T_M(n) = \max\{m \mid M \text{ realiza $m$ movimientos para la entrada $I \in I_{\Pi}, |I| = n$}\}$$
 
 Una MTD $M$ es \textit{polinomial} para $\Pi$ cuando $T_M(n) \in \BigO{n^k}$ para algún $k$.
 
@@ -112,7 +112,7 @@ Una observación es que $P \subseteq NP$: para un problema polinomial, una insta
     Si $\Pi$ es un problema de decisión que pertenece a la clase NP, entonces $\Pi$ puede ser resuelto por un algoritmo determinístico en tiempo exponencial con respecto al tamaño de la entrada.
 \end{theorem*}
 \begin{proof}
-    Para resolver $\Pi$, se puede simular la ejecución de la MTND que lo resuelve: cada vez que hay ambigüedad con respecto a la instrucción a aplicar se exploran todos los ``súbarboles de ejecución''. Esto implica una complejidad exponencial: si hay a lo sumo $A$ estados distintos para cada punto de no-determinismo, se realizan \BigO{A^{T_M(n)}}, y $T_M(n)$ es una función exponencial (porque $\Pi \in \text{NP}$).
+    Para resolver $\Pi$, se puede simular la ejecución de la MTND que lo resuelve: cada vez que hay ambigüedad con respecto a la instrucción a aplicar se exploran todos los ``súbarboles de ejecución''. Esto implica una complejidad exponencial: si hay a lo sumo $A$ estados distintos para cada punto de no-determinismo, se realizan \BigO{A^{T_M(n)}}, y $T_M(n)$ es una función polinomial (porque $\Pi \in \text{NP}$).
 \end{proof}
 
 \subsubsection{P vs. NP}

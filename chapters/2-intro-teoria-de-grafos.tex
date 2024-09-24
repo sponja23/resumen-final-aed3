@@ -177,7 +177,7 @@ $$
 
 La matriz es simétrica para grafos, pero no necesariamente para digrafos.
 
-La estructura permite comprobar si dos vértices son adyacentes en tiempo constante. Sin embargo, construirla a partir de una lista de adyacencia es una operación de complejidad cuadrática, y la estructura es muy rígida (para agregar un vértice se debe armar una nueva matriz). Además, la complejidad espacial es también\BigO{|V|^2}, lo cual es problemático para guardar grafos ralos\footnote{Un grafo \textit{ralo} es uno con ``pocas'' aristas.}.
+La estructura permite comprobar si dos vértices son adyacentes en tiempo constante. Sin embargo, construirla a partir de una lista de adyacencia es una operación de complejidad cuadrática, y la estructura es muy rígida (para agregar un vértice se debe armar una nueva matriz). Además, la complejidad espacial es también \BigO{|V|^2}, lo cual es problemático para guardar grafos ralos\footnote{Un grafo \textit{ralo} es uno con ``pocas'' aristas.}.
 
 \subsubsection{Matriz de incidencia}
 
@@ -440,7 +440,7 @@ El algoritmo de DFS se puede implementar recursivamente de la siguiente manera (
     \li $\id{fin}[v] \gets \id{contador}$
 \end{codebox}
 
-El tiempo de ejecución del algoritmo, al igual que BFS, es lineal\footnote{La linealidad de estas complejidades se refiere a que, como los grafos se pasan como listas de adyacencia, el tamaño de la entrada es $|E|$. Si se considerara la cantidad de vértices, una complejidad de\BigO{|E|} sería cuadrática, ya que $|E| \in \BigO{|V|^2}$.}: hay una llamada por cada nodo, y cada llamada tiene un tiempo de ejecución proporcional al grado del nodo, así que la complejidad es $\BigO{|V| + |E|}$.
+El tiempo de ejecución del algoritmo, al igual que BFS, es lineal\footnote{La linealidad de estas complejidades se refiere a que, como los grafos se pasan como listas de adyacencia, el tamaño de la entrada es $|E|$. Si se considerara la cantidad de vértices, una complejidad de \BigO{|E|} sería cuadrática, ya que $|E| \in \BigO{|V|^2}$.}: hay una llamada por cada nodo, y cada llamada tiene un tiempo de ejecución proporcional al grado del nodo, así que la complejidad es $\BigO{|V| + |E|}$.
 
 Al terminar, DFS no solo devuelve el árbol generado $T$, sino que también un par de arreglos \id{principio} y \id{fin}. El primero guarda el orden en el que se empieza a explorar el subárbol de cada nodo (también llamado \textit{pre-order}), mientras que el segundo guarda el orden en el que se termina dicha exploración (también llamado \textit{post-order}). Estos valores son muy útiles para analizar la estructura del árbol.
 
@@ -533,7 +533,7 @@ Habiendo implementado y analizado DFS, el algoritmo para encontrar un ordenamien
     Como el valor de \id{fin}[$v$] se asigna después de haber explorado por todos los vértices $u$ alcanzables desde $v$, se cumple que $\id{fin}[u] < \id{fin}[v]$. Por ende, si se ordenan los vértices por valor \id{fin} decreciente, los vértices que se pueden alcanzar desde otros aparecerán después.
 \end{proof}
 
-Para implementar este algoritmo, no es necesario ordenar directamente los vértices a través de \id{fin} (lo tendría complejidad\BigO{|V|\log{|V|}}), sino que basta con modificar DFS: después de terminar de explorar el subárbol de cada vértice, se lo agrega al principio de una secuencia. Esto produce un ordenamiento topológico de $D$.
+Para implementar este algoritmo, no es necesario ordenar directamente los vértices a través de \id{fin} (lo tendría complejidad \BigO{|V|\log{|V|}}), sino que basta con modificar DFS: después de terminar de explorar el subárbol de cada vértice, se lo agrega al principio de una secuencia. Esto produce un ordenamiento topológico de $D$.
 
 \section{Algoritmo de Kosaraju}
 
